@@ -1,0 +1,88 @@
+@startuml
+' ============================================================
+' DIAGRAMA DE SECUENCIA - Sistema de Ayudantías Universitarias
+' ============================================================
+
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam participantPadding 20
+
+title Secuencia Principal - Registro, Consulta e Inscripción a Ayudantía
+
+actor "Usuario universitario" as Usuario
+boundary "Frontend" as Frontend
+control "AuthService" as Auth
+control "AyudantiaService" as Ayudantia
+control "InscripcionService" as Inscripcion
+entity "Base de Datos" as DB
+participant "DirectorioUniversitarioGateway" as Directorio
+participant "AulaGateway" as Aula
+
+== Creación de cuenta local ==
+
+Usuario -> Frontend : Ingresa código/correo institucional
+Frontend -> Auth : crearCuenta(externalUserRef, password)
+Auth -> Directorio : validarUsuarioUniversitario(externalUserRef)
+Directorio --> Auth : usuario válido + datos básicos
+
+alt Usuario universitario válido
+  Auth -> DB : buscarUsuarioPorExternalRef(externalUserRef)
+  alt Usuario no existe
+    Auth -> DB : crear Usuario
+  end
+  Auth -> DB : crear CuentaUsuario(password_hash)
+  Auth -> DB : asignar rol ESTUDIANTE
+  Auth --> Frontend : cuenta creada
+  Frontend --> Usuario : Confirmación de registro
+else Usuario no válido
+  Auth --> Frontend : error de validación
+  Frontend --> Usuario : Mostrar rechazo
+end
+
+== Consulta de ayudantías ==
+
+Usuario -> Frontend : Solicita materias con ayudantías
+Frontend -> Ayudantia : consultarAyudantiasDisponibles()
+Ayudantia -> DB : consultar materias, ofertas y sesiones publicadas
+DB --> Ayudantia : listado de ayudantías
+Ayudantia --> Frontend : datos de materias y horarios
+Frontend --> Usuario : Mostrar ayudantías disponibles
+
+== Inscripción a una sesión ==
+
+Usuario -> Frontend : Selecciona sesión
+Frontend -> Inscripcion : inscribirUsuario(usuarioId, sesionId)
+Inscripcion -> DB : obtener sesión y cupo
+DB --> Inscripcion : sesión, cupo máximo, inscripciones actuales
+
+alt Sesión disponible y con cupo
+  Inscripcion -> DB : validar inscripción duplicada
+  DB --> Inscripcion : no existe inscripción activa
+  Inscripcion -> DB : crear InscripcionAyudantia(INSCRITO)
+  Inscripcion --> Frontend : inscripción confirmada
+  Frontend --> Usuario : Mostrar confirmación
+else Sin cupo o sesión no disponible
+  Inscripcion --> Frontend : inscripción rechazada o lista de espera
+  Frontend --> Usuario : Mostrar motivo
+end
+
+== Programación de sesión por coordinador ==
+
+actor "Coordinador académico" as Coordinador
+Coordinador -> Frontend : Programa sesión con fecha, hora y aula_ref_id
+Frontend -> Ayudantia : programarSesion(datosSesion)
+Ayudantia -> Aula : consultarDisponibilidad(aulaRefId, fecha, horaInicio, horaFin)
+Aula --> Ayudantia : aula disponible
+
+alt Aula disponible
+  Ayudantia -> Aula : reservarAula(aulaRefId, fecha, horaInicio, horaFin)
+  Aula --> Ayudantia : reserva confirmada
+  Ayudantia -> DB : crear SesionAyudantia
+  Ayudantia --> Frontend : sesión programada
+  Frontend --> Coordinador : Mostrar confirmación
+else Aula no disponible
+  Ayudantia --> Frontend : aula no disponible
+  Frontend --> Coordinador : Solicitar otra aula u horario
+end
+
+@enduml

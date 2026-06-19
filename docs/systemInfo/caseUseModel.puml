@@ -1,0 +1,90 @@
+@startuml
+' ============================================================
+' DIAGRAMA DE CASOS DE USO - Sistema de Ayudantías Universitarias
+' ============================================================
+
+left to right direction
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+
+title Casos de Uso - Sistema de Ayudantías Universitarias
+
+actor "Usuario universitario" as Usuario
+actor "Estudiante" as Estudiante
+actor "Auxiliar" as Auxiliar
+actor "Coordinador académico" as Coordinador
+actor "Sistema universitario externo" as Directorio
+actor "Sistema externo de aulas" as Aulas
+
+Usuario <|-- Estudiante
+Usuario <|-- Auxiliar
+
+rectangle "Sistema de Ayudantías" {
+
+  usecase "Crear cuenta\nregistrando contraseña" as UC_CrearCuenta
+  usecase "Iniciar sesión" as UC_Login
+  usecase "Validar usuario\nuniversitario" as UC_ValidarUsuario
+
+  usecase "Consultar materias\ncon ayudantías" as UC_ConsultarMaterias
+  usecase "Ver horarios\ndisponibles" as UC_VerHorarios
+  usecase "Inscribirse a sesión" as UC_Inscribirse
+  usecase "Cancelar inscripción" as UC_CancelarInscripcion
+  usecase "Ver mis inscripciones" as UC_VerInscripciones
+
+  usecase "Postularse como auxiliar" as UC_PostularAuxiliar
+  usecase "Registrar disponibilidad" as UC_Disponibilidad
+  usecase "Ver sesiones asignadas" as UC_VerSesionesAuxiliar
+
+  usecase "Crear materia" as UC_CrearMateria
+  usecase "Crear oferta de ayudantía" as UC_CrearOferta
+  usecase "Programar sesión" as UC_ProgramarSesion
+  usecase "Asignar auxiliar" as UC_AsignarAuxiliar
+  usecase "Aprobar o rechazar\npostulación" as UC_RevisarPostulacion
+  usecase "Registrar asistencia" as UC_RegistrarAsistencia
+
+  usecase "Consultar disponibilidad\nde aula" as UC_ConsultarAula
+  usecase "Reservar aula externa" as UC_ReservarAula
+}
+
+Usuario --> UC_CrearCuenta
+Usuario --> UC_Login
+
+Estudiante --> UC_ConsultarMaterias
+Estudiante --> UC_VerHorarios
+Estudiante --> UC_Inscribirse
+Estudiante --> UC_CancelarInscripcion
+Estudiante --> UC_VerInscripciones
+
+Auxiliar --> UC_PostularAuxiliar
+Auxiliar --> UC_Disponibilidad
+Auxiliar --> UC_VerSesionesAuxiliar
+
+Coordinador --> UC_CrearMateria
+Coordinador --> UC_CrearOferta
+Coordinador --> UC_ProgramarSesion
+Coordinador --> UC_AsignarAuxiliar
+Coordinador --> UC_RevisarPostulacion
+Coordinador --> UC_RegistrarAsistencia
+
+UC_CrearCuenta ..> UC_ValidarUsuario : <<include>>
+UC_ProgramarSesion ..> UC_ConsultarAula : <<include>>
+UC_ProgramarSesion ..> UC_ReservarAula : <<include>>
+UC_Inscribirse ..> UC_VerHorarios : <<include>>
+UC_AsignarAuxiliar ..> UC_RevisarPostulacion : <<extend>>
+
+Directorio --> UC_ValidarUsuario
+Aulas --> UC_ConsultarAula
+Aulas --> UC_ReservarAula
+
+note bottom of UC_CrearCuenta
+  El usuario solo registra contraseña.
+  Sus datos base vienen del sistema universitario externo.
+end note
+
+note bottom of UC_ProgramarSesion
+  El aula no se guarda como entidad interna.
+  Solo se almacena aula_ref_id y nombre en caché opcional.
+end note
+
+@enduml

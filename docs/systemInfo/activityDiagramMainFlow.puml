@@ -1,0 +1,133 @@
+@startuml
+' ============================================================
+' DIAGRAMA DE ACTIVIDAD PRINCIPAL - Sistema de Ayudantías Universitarias
+' ============================================================
+
+skinparam shadowing false
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #333333
+  ArrowColor #333333
+}
+
+title Flujo Principal - Acceso, Inscripción y Postulación a Auxiliar
+
+start
+
+partition "Usuario universitario" {
+  :Ingresa al sistema;
+}
+
+partition "Sistema de Ayudantías" {
+  if (¿Cuenta local creada?) then (No)
+    :Solicitar código o correo institucional;
+  else (Sí)
+    :Solicitar credenciales;
+  endif
+}
+
+if (¿Cuenta local creada?) then (No)
+  partition "Sistema universitario externo" {
+    :Validar existencia del usuario universitario;
+    :Retornar datos básicos del usuario;
+  }
+
+  partition "Sistema de Ayudantías" {
+    if (¿Usuario válido?) then (Sí)
+      :Solicitar contraseña;
+      :Crear Usuario si no existe;
+      :Crear CuentaUsuario con password_hash;
+      :Asignar rol ESTUDIANTE por defecto;
+    else (No)
+      :Mostrar error de usuario no válido;
+      stop
+    endif
+  }
+else (Sí)
+  partition "Sistema de Ayudantías" {
+    :Validar correo y contraseña;
+    if (¿Credenciales válidas?) then (Sí)
+      :Crear sesión autenticada;
+    else (No)
+      :Mostrar error de acceso;
+      stop
+    endif
+  }
+endif
+
+partition "Usuario universitario" {
+  :Selecciona acción principal;
+}
+
+partition "Sistema de Ayudantías" {
+  if (¿Desea inscribirse a una ayudantía?) then (Sí)
+    :Listar materias con ayudantías publicadas;
+  else (No)
+    if (¿Desea postularse como auxiliar?) then (Sí)
+      :Listar materias disponibles para postulación;
+    else (Otra acción)
+      :Mostrar panel según roles;
+      stop
+    endif
+  endif
+}
+
+if (Flujo elegido) then (Inscripción)
+
+  partition "Usuario universitario" {
+    :Selecciona materia;
+    :Selecciona sesión disponible;
+  }
+
+  partition "Sistema de Ayudantías" {
+    :Verificar estado de la sesión;
+    :Verificar cupo disponible;
+    :Verificar que no exista inscripción duplicada;
+
+    if (¿Puede inscribirse?) then (Sí)
+      :Crear InscripcionAyudantia;
+      :Estado = INSCRITO;
+      :Mostrar confirmación;
+    else (No)
+      if (¿Hay lista de espera?) then (Sí)
+        :Crear inscripción con estado EN_ESPERA;
+        :Mostrar confirmación en lista de espera;
+      else (No)
+        :Mostrar motivo de rechazo;
+      endif
+    endif
+  }
+
+else (Postulación auxiliar)
+
+  partition "Usuario universitario" {
+    :Selecciona materia;
+    :Registra motivo, experiencia y disponibilidad;
+  }
+
+  partition "Sistema de Ayudantías" {
+    :Crear PostulacionAuxiliar;
+    :Estado = PENDIENTE;
+    :Registrar DisponibilidadAuxiliar;
+    :Notificar al coordinador académico;
+  }
+
+  partition "Coordinador académico" {
+    :Revisa postulación;
+  }
+
+  partition "Sistema de Ayudantías" {
+    if (¿Postulación aprobada?) then (Sí)
+      :Crear AuxiliarMateria;
+      :Asignar rol AUXILIAR si no lo tiene;
+      :Estado postulación = APROBADA;
+      :Notificar aprobación;
+    else (No)
+      :Estado postulación = RECHAZADA;
+      :Notificar rechazo;
+    endif
+  }
+endif
+
+stop
+@enduml

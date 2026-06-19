@@ -1,0 +1,172 @@
+@startuml
+' ============================================================
+' MODELO DE DOMINIO / ER - Sistema de Ayudantías Universitarias
+' ============================================================
+
+hide circle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam entity {
+  BackgroundColor #FFFFFF
+  BorderColor #333333
+}
+
+title Modelo de Dominio / Diagrama ER - Sistema de Ayudantías Universitarias
+
+entity "usuarios" as usuarios {
+  * id : UUID <<PK>>
+  --
+  external_user_ref : VARCHAR <<UNIQUE, EXTERNAL_REF>>
+  codigo_universitario : VARCHAR <<UNIQUE>>
+  correo_institucional : VARCHAR <<UNIQUE>>
+  nombre_completo : VARCHAR
+  estado : VARCHAR
+  fecha_registro : TIMESTAMP
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "cuentas_usuario" as cuentas_usuario {
+  * id : UUID <<PK>>
+  --
+  usuario_id : UUID <<FK, UNIQUE>>
+  password_hash : TEXT
+  estado : VARCHAR
+  ultimo_acceso : TIMESTAMP
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "roles_usuario" as roles_usuario {
+  * id : UUID <<PK>>
+  --
+  nombre : VARCHAR <<UNIQUE>>
+  descripcion : TEXT
+  created_at : TIMESTAMP
+}
+
+entity "usuarios_roles" as usuarios_roles {
+  * id : UUID <<PK>>
+  --
+  usuario_id : UUID <<FK>>
+  rol_id : UUID <<FK>>
+  created_at : TIMESTAMP
+}
+
+entity "materias" as materias {
+  * id : UUID <<PK>>
+  --
+  codigo : VARCHAR <<UNIQUE>>
+  nombre : VARCHAR
+  descripcion : TEXT
+  estado : VARCHAR
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "ofertas_ayudantia" as ofertas_ayudantia {
+  * id : UUID <<PK>>
+  --
+  materia_id : UUID <<FK>>
+  titulo : VARCHAR
+  descripcion : TEXT
+  cupo_maximo : INTEGER
+  estado : VARCHAR
+  fecha_creacion : TIMESTAMP
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "sesiones_ayudantia" as sesiones_ayudantia {
+  * id : UUID <<PK>>
+  --
+  oferta_ayudantia_id : UUID <<FK>>
+  auxiliar_id : UUID <<FK, NULLABLE>>
+  fecha : DATE
+  hora_inicio : TIME
+  hora_fin : TIME
+  aula_ref_id : VARCHAR <<EXTERNAL_REF>>
+  aula_nombre_cache : VARCHAR
+  estado : VARCHAR
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "inscripciones_ayudantia" as inscripciones_ayudantia {
+  * id : UUID <<PK>>
+  --
+  usuario_id : UUID <<FK>>
+  sesion_ayudantia_id : UUID <<FK>>
+  estado : VARCHAR
+  fecha_inscripcion : TIMESTAMP
+  asistencia : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "postulaciones_auxiliar" as postulaciones_auxiliar {
+  * id : UUID <<PK>>
+  --
+  usuario_id : UUID <<FK>>
+  materia_id : UUID <<FK>>
+  motivo : TEXT
+  experiencia : TEXT
+  estado : VARCHAR
+  fecha_postulacion : TIMESTAMP
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "auxiliares_materia" as auxiliares_materia {
+  * id : UUID <<PK>>
+  --
+  usuario_id : UUID <<FK>>
+  materia_id : UUID <<FK>>
+  estado : VARCHAR
+  fecha_asignacion : TIMESTAMP
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "disponibilidad_auxiliar" as disponibilidad_auxiliar {
+  * id : UUID <<PK>>
+  --
+  usuario_id : UUID <<FK>>
+  dia_semana : VARCHAR
+  hora_inicio : TIME
+  hora_fin : TIME
+  estado : VARCHAR
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+usuarios ||--|| cuentas_usuario : tiene
+usuarios ||--o{ usuarios_roles : posee
+roles_usuario ||--o{ usuarios_roles : asignado
+
+materias ||--o{ ofertas_ayudantia : ofrece
+ofertas_ayudantia ||--o{ sesiones_ayudantia : programa
+
+usuarios ||--o{ inscripciones_ayudantia : realiza
+sesiones_ayudantia ||--o{ inscripciones_ayudantia : recibe
+
+usuarios ||--o{ postulaciones_auxiliar : postula
+materias ||--o{ postulaciones_auxiliar : recibe
+
+usuarios ||--o{ auxiliares_materia : puede_ser_auxiliar
+materias ||--o{ auxiliares_materia : tiene_auxiliares
+
+usuarios ||--o{ disponibilidad_auxiliar : declara
+usuarios ||--o{ sesiones_ayudantia : dicta_como_auxiliar
+
+note bottom of usuarios
+  external_user_ref no es FK interna.
+  Es una referencia desacoplada al directorio universitario.
+end note
+
+note bottom of sesiones_ayudantia
+  aula_ref_id no es FK interna.
+  Es una referencia desacoplada al sistema externo de aulas.
+end note
+
+@enduml

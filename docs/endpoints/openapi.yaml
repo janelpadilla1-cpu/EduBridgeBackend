@@ -1,0 +1,1669 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "EduBridgeBackend API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "sanctum": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Opaque Sanctum Token"
+      }
+    }
+  },
+  "paths": {
+    "/api/v1/auth/register": {
+      "post": {
+        "summary": "Crear cuenta local",
+        "tags": [
+          "Auth"
+        ],
+        "responses": {
+          "201": {
+            "description": "Cuenta creada"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "summary": "Iniciar sesión",
+        "tags": [
+          "Auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "Sesión iniciada"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "summary": "Usuario autenticado",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuario autenticado"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "summary": "Cerrar sesión",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Sesión cerrada"
+          }
+        }
+      }
+    },
+    "/api/v1/usuarios": {
+      "get": {
+        "summary": "Listar Usuario",
+        "tags": [
+          "Usuario"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado paginado"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear Usuario",
+        "tags": [
+          "Usuario"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Creado"
+          }
+        }
+      }
+    },
+    "/api/v1/usuarios/{id}": {
+      "get": {
+        "summary": "Ver Usuario",
+        "tags": [
+          "Usuario"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar Usuario",
+        "tags": [
+          "Usuario"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actualizado"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Actualizar parcialmente Usuario",
+        "tags": [
+          "Usuario"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actualizado"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar Usuario",
+        "tags": [
+          "Usuario"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Eliminado"
+          }
+        }
+      }
+    },
+    "/api/v1/cuentas-usuario": {
+      "get": {
+        "summary": "Listar CuentaUsuario",
+        "tags": [
+          "CuentaUsuario"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado paginado"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear CuentaUsuario",
+        "tags": [
+          "CuentaUsuario"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Creado"
+          }
+        }
+      }
+    },
+    "/api/v1/cuentas-usuario/{id}": {
+      "get": {
+        "summary": "Ver CuentaUsuario",
+        "tags": [
+          "CuentaUsuario"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar CuentaUsuario",
+        "tags": [
+          "CuentaUsuario"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actualizado"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Actualizar parcialmente CuentaUsuario",
+        "tags": [
+          "CuentaUsuario"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actualizado"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar CuentaUsuario",
+        "tags": [
+          "CuentaUsuario"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Eliminado"
+          }
+        }
+      }
+    },
+    "/api/v1/roles-usuario": {
+      "get": {
+        "summary": "Listar RolUsuario",
+        "tags": [
+          "RolUsuario"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado paginado"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear RolUsuario",
+        "tags": [
+          "RolUsuario"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Creado"
+          }
+        }
+      }
+    },
+    "/api/v1/roles-usuario/{id}": {
+      "get": {
+        "summary": "Ver RolUsuario",
+        "tags": [
+          "RolUsuario"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar RolUsuario",
+        "tags": [
+          "RolUsuario"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actualizado"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Actualizar parcialmente RolUsuario",
+        "tags": [
+          "RolUsuario"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actualizado"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar RolUsuario",
+        "tags": [
+          "RolUsuario"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Eliminado"
+          }
+        }
+      }
+    },
+    "/api/v1/usuarios-roles": {
+      "get": {
+        "summary": "Listar UsuarioRol",
+        "tags": [
+          "UsuarioRol"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado paginado"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear UsuarioRol",
+        "tags": [
+          "UsuarioRol"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Creado"
+          }
+        }
+      }
+    },
+    "/api/v1/usuarios-roles/{id}": {
+      "get": {
+        "summary": "Ver UsuarioRol",
+        "tags": [
+          "UsuarioRol"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar UsuarioRol",
+        "tags": [
+          "UsuarioRol"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actualizado"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Actualizar parcialmente UsuarioRol",
+        "tags": [
+          "UsuarioRol"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actualizado"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar UsuarioRol",
+        "tags": [
+          "UsuarioRol"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Eliminado"
+          }
+        }
+      }
+    },
+    "/api/v1/materias": {
+      "get": {
+        "summary": "Listar Materia",
+        "tags": [
+          "Materia"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado paginado"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear Materia",
+        "tags": [
+          "Materia"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Creado"
+          }
+        }
+      }
+    },
+    "/api/v1/materias/{id}": {
+      "get": {
+        "summary": "Ver Materia",
+        "tags": [
+          "Materia"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar Materia",
+        "tags": [
+          "Materia"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actualizado"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Actualizar parcialmente Materia",
+        "tags": [
+          "Materia"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actualizado"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar Materia",
+        "tags": [
+          "Materia"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Eliminado"
+          }
+        }
+      }
+    },
+    "/api/v1/ofertas-ayudantia": {
+      "get": {
+        "summary": "Listar OfertaAyudantia",
+        "tags": [
+          "OfertaAyudantia"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado paginado"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear OfertaAyudantia",
+        "tags": [
+          "OfertaAyudantia"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Creado"
+          }
+        }
+      }
+    },
+    "/api/v1/ofertas-ayudantia/{id}": {
+      "get": {
+        "summary": "Ver OfertaAyudantia",
+        "tags": [
+          "OfertaAyudantia"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar OfertaAyudantia",
+        "tags": [
+          "OfertaAyudantia"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actualizado"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Actualizar parcialmente OfertaAyudantia",
+        "tags": [
+          "OfertaAyudantia"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actualizado"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar OfertaAyudantia",
+        "tags": [
+          "OfertaAyudantia"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Eliminado"
+          }
+        }
+      }
+    },
+    "/api/v1/sesiones-ayudantia": {
+      "get": {
+        "summary": "Listar SesionAyudantia",
+        "tags": [
+          "SesionAyudantia"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado paginado"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear SesionAyudantia",
+        "tags": [
+          "SesionAyudantia"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Creado"
+          }
+        }
+      }
+    },
+    "/api/v1/sesiones-ayudantia/{id}": {
+      "get": {
+        "summary": "Ver SesionAyudantia",
+        "tags": [
+          "SesionAyudantia"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar SesionAyudantia",
+        "tags": [
+          "SesionAyudantia"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actualizado"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Actualizar parcialmente SesionAyudantia",
+        "tags": [
+          "SesionAyudantia"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actualizado"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar SesionAyudantia",
+        "tags": [
+          "SesionAyudantia"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Eliminado"
+          }
+        }
+      }
+    },
+    "/api/v1/inscripciones-ayudantia": {
+      "get": {
+        "summary": "Listar InscripcionAyudantia",
+        "tags": [
+          "InscripcionAyudantia"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado paginado"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear InscripcionAyudantia",
+        "tags": [
+          "InscripcionAyudantia"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Creado"
+          }
+        }
+      }
+    },
+    "/api/v1/inscripciones-ayudantia/{id}": {
+      "get": {
+        "summary": "Ver InscripcionAyudantia",
+        "tags": [
+          "InscripcionAyudantia"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar InscripcionAyudantia",
+        "tags": [
+          "InscripcionAyudantia"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actualizado"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Actualizar parcialmente InscripcionAyudantia",
+        "tags": [
+          "InscripcionAyudantia"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actualizado"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar InscripcionAyudantia",
+        "tags": [
+          "InscripcionAyudantia"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Eliminado"
+          }
+        }
+      }
+    },
+    "/api/v1/postulaciones-auxiliar": {
+      "get": {
+        "summary": "Listar PostulacionAuxiliar",
+        "tags": [
+          "PostulacionAuxiliar"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado paginado"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear PostulacionAuxiliar",
+        "tags": [
+          "PostulacionAuxiliar"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Creado"
+          }
+        }
+      }
+    },
+    "/api/v1/postulaciones-auxiliar/{id}": {
+      "get": {
+        "summary": "Ver PostulacionAuxiliar",
+        "tags": [
+          "PostulacionAuxiliar"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar PostulacionAuxiliar",
+        "tags": [
+          "PostulacionAuxiliar"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actualizado"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Actualizar parcialmente PostulacionAuxiliar",
+        "tags": [
+          "PostulacionAuxiliar"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actualizado"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar PostulacionAuxiliar",
+        "tags": [
+          "PostulacionAuxiliar"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Eliminado"
+          }
+        }
+      }
+    },
+    "/api/v1/auxiliares-materia": {
+      "get": {
+        "summary": "Listar AuxiliarMateria",
+        "tags": [
+          "AuxiliarMateria"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado paginado"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear AuxiliarMateria",
+        "tags": [
+          "AuxiliarMateria"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Creado"
+          }
+        }
+      }
+    },
+    "/api/v1/auxiliares-materia/{id}": {
+      "get": {
+        "summary": "Ver AuxiliarMateria",
+        "tags": [
+          "AuxiliarMateria"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar AuxiliarMateria",
+        "tags": [
+          "AuxiliarMateria"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actualizado"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Actualizar parcialmente AuxiliarMateria",
+        "tags": [
+          "AuxiliarMateria"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actualizado"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar AuxiliarMateria",
+        "tags": [
+          "AuxiliarMateria"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Eliminado"
+          }
+        }
+      }
+    },
+    "/api/v1/disponibilidad-auxiliar": {
+      "get": {
+        "summary": "Listar DisponibilidadAuxiliar",
+        "tags": [
+          "DisponibilidadAuxiliar"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado paginado"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear DisponibilidadAuxiliar",
+        "tags": [
+          "DisponibilidadAuxiliar"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Creado"
+          }
+        }
+      }
+    },
+    "/api/v1/disponibilidad-auxiliar/{id}": {
+      "get": {
+        "summary": "Ver DisponibilidadAuxiliar",
+        "tags": [
+          "DisponibilidadAuxiliar"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar DisponibilidadAuxiliar",
+        "tags": [
+          "DisponibilidadAuxiliar"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actualizado"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Actualizar parcialmente DisponibilidadAuxiliar",
+        "tags": [
+          "DisponibilidadAuxiliar"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actualizado"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar DisponibilidadAuxiliar",
+        "tags": [
+          "DisponibilidadAuxiliar"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Eliminado"
+          }
+        }
+      }
+    }
+  }
+}

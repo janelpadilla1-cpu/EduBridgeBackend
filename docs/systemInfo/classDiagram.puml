@@ -1,0 +1,230 @@
+@startuml
+' ============================================================
+' DIAGRAMA DE CLASES - Sistema de Ayudantías Universitarias
+' ============================================================
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #333333
+  ArrowColor #333333
+}
+
+title Diagrama de Clases - Sistema de Ayudantías Universitarias
+
+package "Dominio de Usuarios" {
+
+  class Usuario {
+    +id: UUID
+    +externalUserRef: String
+    +codigoUniversitario: String
+    +correoInstitucional: String
+    +nombreCompleto: String
+    +estado: String
+    +fechaRegistro: DateTime
+    +createdAt: DateTime
+    +updatedAt: DateTime
+  }
+
+  class CuentaUsuario {
+    +id: UUID
+    +usuarioId: UUID
+    +passwordHash: String
+    +estado: String
+    +ultimoAcceso: DateTime
+    +createdAt: DateTime
+    +updatedAt: DateTime
+  }
+
+  class RolUsuario {
+    +id: UUID
+    +nombre: String
+    +descripcion: String
+    +createdAt: DateTime
+  }
+
+  class UsuarioRol {
+    +id: UUID
+    +usuarioId: UUID
+    +rolId: UUID
+    +createdAt: DateTime
+  }
+}
+
+package "Dominio Académico" {
+
+  class Materia {
+    +id: UUID
+    +codigo: String
+    +nombre: String
+    +descripcion: String
+    +estado: String
+    +createdAt: DateTime
+    +updatedAt: DateTime
+  }
+
+  class OfertaAyudantia {
+    +id: UUID
+    +materiaId: UUID
+    +titulo: String
+    +descripcion: String
+    +cupoMaximo: Integer
+    +estado: String
+    +fechaCreacion: DateTime
+    +createdAt: DateTime
+    +updatedAt: DateTime
+  }
+
+  class SesionAyudantia {
+    +id: UUID
+    +ofertaAyudantiaId: UUID
+    +auxiliarId: UUID
+    +fecha: Date
+    +horaInicio: Time
+    +horaFin: Time
+    +aulaRefId: String
+    +aulaNombreCache: String
+    +estado: String
+    +createdAt: DateTime
+    +updatedAt: DateTime
+  }
+}
+
+package "Inscripciones" {
+
+  class InscripcionAyudantia {
+    +id: UUID
+    +usuarioId: UUID
+    +sesionAyudantiaId: UUID
+    +estado: String
+    +fechaInscripcion: DateTime
+    +asistencia: Boolean
+    +createdAt: DateTime
+    +updatedAt: DateTime
+  }
+}
+
+package "Auxiliares" {
+
+  class PostulacionAuxiliar {
+    +id: UUID
+    +usuarioId: UUID
+    +materiaId: UUID
+    +motivo: String
+    +experiencia: String
+    +estado: String
+    +fechaPostulacion: DateTime
+    +createdAt: DateTime
+    +updatedAt: DateTime
+  }
+
+  class AuxiliarMateria {
+    +id: UUID
+    +usuarioId: UUID
+    +materiaId: UUID
+    +estado: String
+    +fechaAsignacion: DateTime
+    +createdAt: DateTime
+    +updatedAt: DateTime
+  }
+
+  class DisponibilidadAuxiliar {
+    +id: UUID
+    +usuarioId: UUID
+    +diaSemana: String
+    +horaInicio: Time
+    +horaFin: Time
+    +estado: String
+    +createdAt: DateTime
+    +updatedAt: DateTime
+  }
+}
+
+package "Servicios de Aplicación" {
+
+  class AuthService {
+    +crearCuenta(externalUserRef: String, password: String)
+    +iniciarSesion(correo: String, password: String)
+    +validarSesion(token: String)
+  }
+
+  class AyudantiaService {
+    +crearOfertaAyudantia()
+    +programarSesion()
+    +consultarAyudantiasDisponibles()
+    +cancelarSesion()
+  }
+
+  class InscripcionService {
+    +inscribirUsuario(usuarioId: UUID, sesionId: UUID)
+    +cancelarInscripcion(inscripcionId: UUID)
+    +registrarAsistencia(inscripcionId: UUID)
+  }
+
+  class AuxiliarService {
+    +postularComoAuxiliar(usuarioId: UUID, materiaId: UUID)
+    +aprobarPostulacion(postulacionId: UUID)
+    +rechazarPostulacion(postulacionId: UUID)
+    +asignarAuxiliarAMateria(usuarioId: UUID, materiaId: UUID)
+  }
+}
+
+package "Integraciones Externas" {
+
+  interface AulaGateway {
+    +consultarDisponibilidad(aulaRefId: String, fecha: Date, horaInicio: Time, horaFin: Time)
+    +reservarAula(aulaRefId: String, fecha: Date, horaInicio: Time, horaFin: Time)
+  }
+
+  interface DirectorioUniversitarioGateway {
+    +validarUsuarioUniversitario(externalUserRef: String)
+    +obtenerDatosBasicos(externalUserRef: String)
+  }
+}
+
+' Relaciones de usuarios
+Usuario "1" -- "1" CuentaUsuario : tiene
+Usuario "1" -- "0..*" UsuarioRol : posee
+RolUsuario "1" -- "0..*" UsuarioRol : asignado
+
+' Relaciones académicas
+Materia "1" -- "0..*" OfertaAyudantia : ofrece
+OfertaAyudantia "1" -- "0..*" SesionAyudantia : programa
+
+' Relaciones de inscripción
+Usuario "1" -- "0..*" InscripcionAyudantia : realiza
+SesionAyudantia "1" -- "0..*" InscripcionAyudantia : recibe
+
+' Relaciones de auxiliares
+Usuario "1" -- "0..*" PostulacionAuxiliar : postula
+Materia "1" -- "0..*" PostulacionAuxiliar : recibe
+Usuario "1" -- "0..*" AuxiliarMateria : puede ser auxiliar
+Materia "1" -- "0..*" AuxiliarMateria : tiene auxiliares
+Usuario "1" -- "0..*" DisponibilidadAuxiliar : declara
+
+' Auxiliar asignado a sesión
+SesionAyudantia "0..*" --> "0..1" Usuario : auxiliar asignado
+
+' Dependencias con servicios externos
+AuthService ..> DirectorioUniversitarioGateway : valida identidad
+AyudantiaService ..> AulaGateway : consulta/reserva aula
+AyudantiaService ..> OfertaAyudantia
+AyudantiaService ..> SesionAyudantia
+InscripcionService ..> InscripcionAyudantia
+AuxiliarService ..> PostulacionAuxiliar
+AuxiliarService ..> AuxiliarMateria
+
+note right of SesionAyudantia
+  aulaRefId referencia un aula externa.
+  No existe entidad Aula dentro del módulo.
+end note
+
+note right of Usuario
+  externalUserRef referencia al sistema
+  universitario externo de personas.
+end note
+
+@enduml

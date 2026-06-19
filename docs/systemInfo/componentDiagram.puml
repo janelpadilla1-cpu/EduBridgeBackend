@@ -1,0 +1,89 @@
+@startuml
+' ============================================================
+' DIAGRAMA DE COMPONENTES - Sistema de Ayudantías Universitarias
+' ============================================================
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+
+title Diagrama de Componentes - Sistema de Ayudantías Universitarias
+
+actor "Usuario universitario" as Usuario
+actor "Coordinador académico" as Coordinador
+
+node "Cliente" {
+  component "Web / Mobile UI" as Frontend
+}
+
+node "Backend Sistema de Ayudantías" {
+
+  component "API Gateway / Router" as Gateway
+
+  package "Módulos de Aplicación" {
+    component "Auth Module" as Auth
+    component "Usuarios Module" as Usuarios
+    component "Materias Module" as Materias
+    component "Ayudantías Module" as Ayudantias
+    component "Inscripciones Module" as Inscripciones
+    component "Auxiliares Module" as Auxiliares
+    component "Auditoría Module" as Auditoria
+    component "Notificaciones Module" as Notificaciones
+  }
+
+  package "Puertos / Gateways" {
+    interface "DirectorioUniversitarioGateway" as DirectorioGateway
+    interface "AulaGateway" as AulaGateway
+    interface "NotificationGateway" as NotificationGateway
+  }
+}
+
+database "BD Ayudantías\nPostgreSQL / SQLite" as DB
+queue "Cola de eventos\n(opcional)" as Broker
+cloud "Sistema universitario externo\nDirectorio de personas" as DirectorioExterno
+cloud "Sistema externo de aulas" as AulasExternas
+cloud "Servicio correo / push" as ServicioNotificacion
+
+Usuario --> Frontend
+Coordinador --> Frontend
+Frontend --> Gateway : HTTPS / REST
+
+Gateway --> Auth
+Gateway --> Usuarios
+Gateway --> Materias
+Gateway --> Ayudantias
+Gateway --> Inscripciones
+Gateway --> Auxiliares
+
+Auth --> Usuarios
+Auth --> DirectorioGateway
+Usuarios --> DB
+Materias --> DB
+Ayudantias --> DB
+Inscripciones --> DB
+Auxiliares --> DB
+Auditoria --> DB
+Notificaciones --> DB
+
+Ayudantias --> AulaGateway : consultar/reservar aula
+AulaGateway --> AulasExternas : API externa
+DirectorioGateway --> DirectorioExterno : API externa
+
+Inscripciones --> Broker : InscripcionCreada
+Auxiliares --> Broker : PostulacionAuxiliarCreada
+Ayudantias --> Broker : SesionAyudantiaProgramada
+Broker --> Notificaciones
+Notificaciones --> NotificationGateway
+NotificationGateway --> ServicioNotificacion
+
+note right of AulasExternas
+  Las aulas no se administran internamente.
+  Solo se guarda aula_ref_id.
+end note
+
+note right of DirectorioExterno
+  Los datos institucionales base vienen
+  del sistema universitario externo.
+end note
+
+@enduml

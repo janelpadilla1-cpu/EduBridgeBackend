@@ -1,0 +1,66 @@
+@startuml
+' ============================================================
+' DIAGRAMA DE ESTADOS - Sistema de Ayudantías Universitarias
+' ============================================================
+
+skinparam shadowing false
+skinparam state {
+  BackgroundColor #FFFFFF
+  BorderColor #333333
+  ArrowColor #333333
+}
+
+title Estados Principales - Ayudantías, Sesiones, Inscripciones y Postulaciones
+
+state "OfertaAyudantia" as OfertaAyudantia {
+  [*] --> BORRADOR
+  BORRADOR --> PUBLICADA : publicar oferta
+  PUBLICADA --> CERRADA : cerrar oferta
+  PUBLICADA --> CANCELADA : cancelar oferta
+  CERRADA --> [*]
+  CANCELADA --> [*]
+}
+
+state "SesionAyudantia" as SesionAyudantia {
+  [*] --> PROGRAMADA
+  PROGRAMADA --> EN_CURSO : iniciar sesión
+  PROGRAMADA --> CANCELADA : cancelar sesión
+  EN_CURSO --> FINALIZADA : finalizar sesión
+  FINALIZADA --> [*]
+  CANCELADA --> [*]
+}
+
+state "InscripcionAyudantia" as InscripcionAyudantia {
+  [*] --> INSCRITO
+  [*] --> EN_ESPERA : sin cupo disponible
+  EN_ESPERA --> INSCRITO : se libera cupo
+  INSCRITO --> CANCELADO : cancelar inscripción
+  INSCRITO --> ASISTIO : registrar asistencia
+  INSCRITO --> NO_ASISTIO : registrar inasistencia
+  CANCELADO --> [*]
+  ASISTIO --> [*]
+  NO_ASISTIO --> [*]
+}
+
+state "PostulacionAuxiliar" as PostulacionAuxiliar {
+  [*] --> PENDIENTE
+  PENDIENTE --> APROBADA : coordinador aprueba
+  PENDIENTE --> RECHAZADA : coordinador rechaza
+  PENDIENTE --> CANCELADA : usuario cancela
+  APROBADA --> [*]
+  RECHAZADA --> [*]
+  CANCELADA --> [*]
+}
+
+state "AuxiliarMateria" as AuxiliarMateria {
+  [*] --> ACTIVO
+  ACTIVO --> INACTIVO : desactivar asignación
+  INACTIVO --> ACTIVO : reactivar asignación
+}
+
+note right of OfertaAyudantia
+  Los estados se modelan como texto en BD,
+  no como ENUM nativo.
+end note
+
+@enduml
