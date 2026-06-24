@@ -2,6 +2,17 @@
 
 Este seed carga una base de prueba grande para validar el frontend con flujo real y mucho contenido.
 
+## Versión actualizada: datos de larga duración
+
+Esta versión corrige el problema de que las sesiones demo “mueren” rápido. Ahora las sesiones programadas se crean con fechas futuras distribuidas durante muchos meses.
+
+Por defecto:
+
+- Las sesiones visibles empiezan desde 14 días después de la fecha en que ejecutes el seed.
+- Las sesiones programadas se distribuyen en una ventana futura de 540 días.
+- Las sesiones especiales de prueba rápida quedan a +44 y +59 días aproximadamente.
+- Se conservan algunas sesiones históricas/finalizadas solo para probar historial y asistencia.
+
 ## Comando recomendado
 
 ```bash
@@ -70,15 +81,19 @@ EDUBRIDGE_SEED_STUDENTS=160
 EDUBRIDGE_SEED_AUXILIARIES=24
 EDUBRIDGE_SEED_OFFERS_PER_SUBJECT=4
 EDUBRIDGE_SEED_SESSIONS_PER_OFFER=3
+EDUBRIDGE_SEED_FUTURE_START_DAYS=14
+EDUBRIDGE_SEED_FUTURE_WINDOW_DAYS=540
 ```
 
-Ejemplo para una base todavía más grande:
+Ejemplo para una base todavía más grande y de mayor duración:
 
 ```env
 EDUBRIDGE_SEED_STUDENTS=300
 EDUBRIDGE_SEED_AUXILIARIES=40
 EDUBRIDGE_SEED_OFFERS_PER_SUBJECT=5
 EDUBRIDGE_SEED_SESSIONS_PER_OFFER=4
+EDUBRIDGE_SEED_FUTURE_START_DAYS=7
+EDUBRIDGE_SEED_FUTURE_WINDOW_DAYS=720
 ```
 
 ## Qué puedes probar en frontend
@@ -103,3 +118,5 @@ El seed es idempotente usando `updateOrCreate`, pero para una base limpia y cons
 ```bash
 php artisan migrate:fresh --seed
 ```
+
+Si quieres que los datos vuelvan a quedar “frescos” meses después, solo vuelve a ejecutar el seed. Las fechas se recalculan según la fecha actual.

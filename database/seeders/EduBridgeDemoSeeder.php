@@ -30,11 +30,15 @@ class EduBridgeDemoSeeder extends Seeder
      * EDUBRIDGE_SEED_AUXILIARIES=24
      * EDUBRIDGE_SEED_OFFERS_PER_SUBJECT=4
      * EDUBRIDGE_SEED_SESSIONS_PER_OFFER=3
+     * EDUBRIDGE_SEED_FUTURE_START_DAYS=14
+     * EDUBRIDGE_SEED_FUTURE_WINDOW_DAYS=540
      */
     private int $studentCount;
     private int $auxiliaryCount;
     private int $offersPerSubject;
     private int $sessionsPerOffer;
+    private int $futureStartDays;
+    private int $futureWindowDays;
 
     public function run(): void
     {
@@ -42,6 +46,8 @@ class EduBridgeDemoSeeder extends Seeder
         $this->auxiliaryCount = max(8, (int) env('EDUBRIDGE_SEED_AUXILIARIES', 24));
         $this->offersPerSubject = max(2, (int) env('EDUBRIDGE_SEED_OFFERS_PER_SUBJECT', 4));
         $this->sessionsPerOffer = max(2, (int) env('EDUBRIDGE_SEED_SESSIONS_PER_OFFER', 3));
+        $this->futureStartDays = max(1, (int) env('EDUBRIDGE_SEED_FUTURE_START_DAYS', 14));
+        $this->futureWindowDays = max(90, (int) env('EDUBRIDGE_SEED_FUTURE_WINDOW_DAYS', 540));
 
         DB::transaction(function (): void {
             $roles = $this->seedRoles();
@@ -542,7 +548,9 @@ class EduBridgeDemoSeeder extends Seeder
     private function seedSesiones(array $usuarios, array $ofertas): array
     {
         $sesiones = [];
-        $baseDate = Carbon::today()->addDays(1);
+        // Las sesiones demo quedan lejos en el futuro para que no "mueran" rápido
+        // por filtros del frontend como fecha >= hoy o estado PROGRAMADA.
+        $baseDate = Carbon::today()->addDays($this->futureStartDays);
         $bloques = [
             ['08:00', '09:30'],
             ['10:00', '11:30'],
@@ -593,7 +601,7 @@ class EduBridgeDemoSeeder extends Seeder
         $sesiones['sesion_prog_1'] = $this->upsertSesionEspecial(
             oferta: $ofertas['oferta_prog_logica'],
             auxiliar: $usuarios['auxiliares']['auxiliar_maria'],
-            fecha: Carbon::today()->addDays(2),
+            fecha: Carbon::today()->addDays($this->futureStartDays + 30),
             inicio: '15:00',
             fin: '16:30',
             aulaRef: 'DEMO-LAB-INF-1',
@@ -604,7 +612,7 @@ class EduBridgeDemoSeeder extends Seeder
         $sesiones['sesion_conta_1'] = $this->upsertSesionEspecial(
             oferta: $ofertas['oferta_contabilidad_diario'],
             auxiliar: $usuarios['auxiliares']['auxiliar_004'],
-            fecha: Carbon::today()->addDays(4),
+            fecha: Carbon::today()->addDays($this->futureStartDays + 45),
             inicio: '18:00',
             fin: '19:30',
             aulaRef: 'DEMO-AULA-CON-1',
@@ -628,15 +636,21 @@ class EduBridgeDemoSeeder extends Seeder
 
     private function sessionDateForOffer(string $offerStatus, Carbon $baseDate, int $offerIndex, int $sessionNumber): Carbon
     {
+        // Mantener algunas sesiones históricas solo para pantallas de historial.
         if ($offerStatus === 'CERRADA') {
-            return Carbon::today()->subDays(5 + (($offerIndex + $sessionNumber) % 20));
+            return Carbon::today()->subDays(15 + (($offerIndex + $sessionNumber) % 120));
         }
 
+        // Las canceladas siguen siendo futuras para que el frontend pueda probar ese estado.
         if ($offerStatus === 'CANCELADA') {
-            return Carbon::today()->addDays(3 + (($offerIndex + $sessionNumber) % 12));
+            return Carbon::today()->addDays($this->futureStartDays + 20 + (($offerIndex * 3 + $sessionNumber) % 180));
         }
 
-        return $baseDate->copy()->addDays(($offerIndex * 2 + $sessionNumber) % 35);
+        // Para ofertas PUBLICADA/BORRADOR se distribuyen sesiones durante muchos meses.
+        // Así los datos siguen visibles aunque pasen semanas o meses desde que corriste el seed.
+        $offset = (($offerIndex * max(3, $this->sessionsPerOffer) * 5) + ($sessionNumber * 11)) % $this->futureWindowDays;
+
+        return $baseDate->copy()->addDays($offset);
     }
 
     private function sessionStatusForOffer(string $offerStatus, int $offerIndex, int $sessionNumber): string
