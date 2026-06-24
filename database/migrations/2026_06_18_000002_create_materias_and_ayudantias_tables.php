@@ -27,9 +27,12 @@ return new class extends Migration
             $table->string('estado', 30)->default('BORRADOR')->index();
             $table->timestampTz('fecha_creacion')->useCurrent();
             $table->timestampsTz();
-            $table->check('cupo_maximo >= 0');
             $table->index('materia_id');
         });
+
+        if (in_array(DB::connection()->getDriverName(), ['mysql', 'pgsql'], true)) {
+            DB::statement('ALTER TABLE ofertas_ayudantia ADD CONSTRAINT chk_ofertas_ayudantia_cupo_maximo CHECK (cupo_maximo >= 0)');
+        }
     }
 
     public function down(): void

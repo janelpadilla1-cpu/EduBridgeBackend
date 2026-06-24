@@ -13,7 +13,7 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE TABLE usuarios (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-    external_user_ref VARCHAR(100) NOT NULL,
+    external_user_ref VARCHAR(100) NOT NULL, -- referencia técnica interna; si no se envía, se usa correo_institucional
     codigo_universitario VARCHAR(50),
     correo_institucional VARCHAR(150) NOT NULL,
     nombre_completo VARCHAR(200) NOT NULL,

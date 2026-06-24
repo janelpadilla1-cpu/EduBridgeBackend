@@ -29,7 +29,8 @@ class RolUsuario extends Model
 
     public function usuarios(): BelongsToMany
     {
-        return $this->belongsToMany(Usuario::class, 'usuarios_roles', 'rol_id', 'usuario_id');
+        return $this->belongsToMany(Usuario::class, 'usuarios_roles', 'rol_id', 'usuario_id')
+            ->withPivot('id', 'created_at');
     }
 
 }

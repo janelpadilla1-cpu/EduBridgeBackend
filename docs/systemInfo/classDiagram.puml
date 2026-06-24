@@ -146,7 +146,7 @@ package "Auxiliares" {
 package "Servicios de Aplicación" {
 
   class AuthService {
-    +crearCuenta(externalUserRef: String, password: String)
+    +crearCuenta(correo: String, nombre: String, rol: String, password: String)
     +iniciarSesion(correo: String, password: String)
     +validarSesion(token: String)
   }
@@ -179,10 +179,6 @@ package "Integraciones Externas" {
     +reservarAula(aulaRefId: String, fecha: Date, horaInicio: Time, horaFin: Time)
   }
 
-  interface DirectorioUniversitarioGateway {
-    +validarUsuarioUniversitario(externalUserRef: String)
-    +obtenerDatosBasicos(externalUserRef: String)
-  }
 }
 
 ' Relaciones de usuarios
@@ -208,8 +204,9 @@ Usuario "1" -- "0..*" DisponibilidadAuxiliar : declara
 ' Auxiliar asignado a sesión
 SesionAyudantia "0..*" --> "0..1" Usuario : auxiliar asignado
 
-' Dependencias con servicios externos
-AuthService ..> DirectorioUniversitarioGateway : valida identidad
+' Registro de usuarios interno
+AuthService ..> Usuario : crea usuario local
+AuthService ..> RolUsuario : asigna rol inicial
 AyudantiaService ..> AulaGateway : consulta/reserva aula
 AyudantiaService ..> OfertaAyudantia
 AyudantiaService ..> SesionAyudantia
@@ -223,8 +220,8 @@ note right of SesionAyudantia
 end note
 
 note right of Usuario
-  externalUserRef referencia al sistema
-  universitario externo de personas.
+  externalUserRef es una referencia
+  técnica interna opcional.
 end note
 
 @enduml

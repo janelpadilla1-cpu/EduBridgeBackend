@@ -3,41 +3,33 @@
 namespace App\Services;
 
 use App\Exceptions\BusinessRuleException;
-use App\Gateways\Directorio\DirectorioUniversitarioGatewayInterface;
 use App\Models\CuentaUsuario;
 use App\Models\RolUsuario;
 use App\Models\Usuario;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class AuthService
 {
-    public function __construct(
-        private readonly DirectorioUniversitarioGatewayInterface $directorioGateway
-    ) {}
-
     public function crearCuenta(array $data): array
     {
         return DB::transaction(function () use ($data): array {
-            $datosExternos = $this->directorioGateway->validarUsuarioUniversitario(
-                $data['external_user_ref'],
-                $data['correo_institucional'] ?? null,
-            );
+            $rolNombre = Str::upper((string) ($data['rol'] ?? 'ESTUDIANTE'));
+            $rolesPermitidos = ['ESTUDIANTE', 'AUXILIAR', 'COORDINADOR', 'ADMINISTRADOR'];
 
-            $usuario = Usuario::query()->firstOrCreate(
-                ['external_user_ref' => $datosExternos['external_user_ref']],
-                [
-                    'codigo_universitario' => $datosExternos['codigo_universitario'],
-                    'correo_institucional' => $datosExternos['correo_institucional'],
-                    'nombre_completo' => $datosExternos['nombre_completo'],
-                    'estado' => 'ACTIVO',
-                    'fecha_registro' => now(),
-                ]
-            );
-
-            if ($usuario->cuenta()->exists()) {
-                throw new BusinessRuleException('El usuario ya tiene una cuenta local creada.');
+            if (! in_array($rolNombre, $rolesPermitidos, true)) {
+                throw new BusinessRuleException('Rol de usuario no permitido.', 422);
             }
+
+            $usuario = Usuario::query()->create([
+                'external_user_ref' => $data['external_user_ref'] ?? $data['correo_institucional'],
+                'codigo_universitario' => $data['codigo_universitario'] ?? null,
+                'correo_institucional' => $data['correo_institucional'],
+                'nombre_completo' => $data['nombre_completo'],
+                'estado' => 'ACTIVO',
+                'fecha_registro' => now(),
+            ]);
 
             CuentaUsuario::query()->create([
                 'usuario_id' => $usuario->id,
@@ -45,12 +37,14 @@ class AuthService
                 'estado' => 'ACTIVA',
             ]);
 
-            $rolEstudiante = RolUsuario::query()->firstOrCreate(
-                ['nombre' => 'ESTUDIANTE'],
-                ['descripcion' => 'Usuario que puede inscribirse a sesiones de ayudantía']
+            $rol = RolUsuario::query()->firstOrCreate(
+                ['nombre' => $rolNombre],
+                ['descripcion' => $this->descripcionRol($rolNombre)]
             );
 
-            $usuario->roles()->syncWithoutDetaching([$rolEstudiante->id]);
+            $usuario->roles()->syncWithoutDetaching([
+                $rol->id => ['id' => (string) Str::uuid()],
+            ]);
 
             return $this->emitirToken($usuario->refresh());
         });
@@ -90,5 +84,15 @@ class AuthService
             'access_token' => $token,
             'usuario' => $usuario->load('roles'),
         ];
+    }
+
+    private function descripcionRol(string $rolNombre): string
+    {
+        return match ($rolNombre) {
+            'AUXILIAR' => 'Usuario que puede dictar sesiones de ayudantía',
+            'COORDINADOR' => 'Usuario que administra ofertas, sesiones y postulaciones',
+            'ADMINISTRADOR' => 'Usuario con permisos generales del sistema',
+            default => 'Usuario que puede inscribirse a sesiones de ayudantía',
+        };
     }
 }

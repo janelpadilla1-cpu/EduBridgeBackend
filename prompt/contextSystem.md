@@ -1,3 +1,19 @@
+# Actualización obligatoria de alcance - Registro interno de usuarios
+
+La versión vigente de EduBridgeBackend NO debe consultar un servidor externo ni un directorio universitario para registrar usuarios.
+
+Reglas actuales:
+
+1. `POST /api/v1/auth/register` recibe internamente los datos del usuario.
+2. El body debe incluir `correo_institucional`, `nombre_completo`, `rol`, `password` y `password_confirmation`.
+3. `external_user_ref` es opcional; si no se envía, se usa el correo institucional como referencia técnica interna.
+4. El rol inicial se asigna en `usuarios_roles` a partir del campo `rol`.
+5. Roles permitidos: `ESTUDIANTE`, `AUXILIAR`, `COORDINADOR`, `ADMINISTRADOR`.
+6. No debe usarse gateway de directorio ni una API externa para obtener nombre, correo o código del usuario.
+7. La documentación, Postman, smoke tests, OpenAPI, README y modelos deben reflejar este flujo interno.
+
+---
+
 # Contexto del sistema
 
 ## 1. Naturaleza del sistema
@@ -82,7 +98,7 @@ UN USUARIO PUEDE TENER MÁS DE UN ROL DENTRO DEL SISTEMA.
 
 ## 4. Enfoque arquitectónico
 
-El sistema debe diseñarse como una aplicación backend modular, preparada para integrarse con servicios externos de la universidad.
+El sistema debe diseñarse como una aplicación backend modular.
 
 Componentes sugeridos:
 
@@ -95,43 +111,53 @@ Módulo de Ayudantías
 Módulo de Inscripciones
 Módulo de Auxiliares
 Módulo de Disponibilidad
-Módulo de Integración con Aulas (Simplificado, no necesito llamarlo a una API externa, solo simular una llamada)
-Módulo de Integración con Directorio Universitario (Simplificado, no necesito llamarlo a una API externa, solo simular una llamada)
+Módulo de Integración con Aulas (fake/local para desarrollo)
 Módulo de Auditoría
 ```
 
-La arquitectura debe evitar el acoplamiento directo con sistemas externos.
+Decisión vigente para usuarios:
 
-La comunicación con sistemas institucionales debe realizarse mediante adaptadores o gateways:
+```txt
+El registro de usuarios es interno.
+No se consulta directorio universitario externo.
+El backend recibe correo, nombre, rol y contraseña desde el request de registro.
+```
+
+La arquitectura debe evitar el acoplamiento directo con proveedores externos. Si en el futuro se integra un sistema real de aulas o notificaciones, debe hacerse mediante adaptadores o gateways.
+
+Gateways vigentes:
 
 ```txt
 AulaGateway
-DirectorioUniversitarioGateway
+NotificationGateway (futuro/opcional)
 ```
-
-Estos gateways representan contratos de integración, no tablas internas.
 
 ## 5. Sistemas externos
 
-El sistema debe integrarse con al menos dos fuentes externas:
+### Registro de usuarios
 
-### Sistema universitario de personas
+No hay sistema externo de personas en la versión vigente. El usuario se registra internamente mediante:
 
-Responsable de validar que una persona pertenece a la universidad.
+```txt
+correo_institucional
+nombre_completo
+rol
+password
+password_confirmation
+```
 
-El sistema de ayudantías no debe duplicar toda la información institucional de la persona. Solo debe conservar los datos mínimos necesarios para operar.
-
-Referencia principal:
+Campos técnicos de usuario:
 
 ```txt
 external_user_ref
+codigo_universitario
 ```
 
-Este campo representa el identificador externo del usuario en el sistema institucional.
+`external_user_ref` es una referencia técnica interna. Si el frontend no la envía, el backend debe usar `correo_institucional` como valor por defecto.
 
 ### Sistema de aulas
 
-Responsable de administrar aulas, disponibilidad y reservas.
+Responsable de administrar aulas, disponibilidad y reservas. En local se usa una implementación fake.
 
 El sistema de ayudantías no debe crear una tabla propia de aulas.
 
@@ -195,13 +221,15 @@ UsuarioRol
 La creación de cuenta debe seguir esta lógica:
 
 ```txt
-Usuario ingresa su identificador institucional
-→ El sistema valida su existencia en el directorio universitario externo
-→ El usuario registra únicamente su contraseña
-→ El sistema crea su cuenta local
+Usuario ingresa correo institucional, nombre completo, rol y contraseña
+→ El sistema valida formato, unicidad y rol permitido
+→ El sistema crea Usuario
+→ El sistema crea CuentaUsuario
+→ El sistema asigna el rol inicial en UsuarioRol
+→ El sistema emite token Sanctum
 ```
 
-El usuario no debe registrar manualmente datos que ya existen en la universidad, como nombre completo o correo institucional. Estos datos deben obtenerse desde el sistema externo cuando sea posible.
+El usuario debe registrar manualmente los datos mínimos requeridos para el alta local: correo institucional, nombre completo, rol y contraseña.
 
 ## 8. Roles del sistema
 
@@ -453,7 +481,7 @@ Elementos no persistentes del dominio:
 
 ```txt
 AulaGateway
-DirectorioUniversitarioGateway
+RegistroInternoUsuariosService
 AuthService
 AyudantiaService
 InscripcionService
@@ -494,9 +522,9 @@ La relación de `SesionAyudantia` con `Usuario` mediante `auxiliar_id` debe ser 
 
 El sistema debe cumplir las siguientes reglas:
 
-1. Solo usuarios universitarios válidos pueden crear cuenta.
-2. Al crear cuenta, el usuario solo registra contraseña.
-3. Los datos institucionales básicos deben obtenerse desde el sistema externo.
+1. Solo usuarios con datos de registro válidos pueden crear cuenta local.
+2. Al crear cuenta, el usuario registra correo institucional, nombre completo, rol y contraseña.
+3. Los datos básicos del usuario deben recibirse desde el request de registro.
 4. El sistema debe mantener usuarios propios para manejar roles e inscripciones.
 5. Un usuario puede tener múltiples roles.
 6. No se debe guardar facultad.
@@ -701,7 +729,7 @@ Los diagramas deben reflejar que:
 
 * Los usuarios se modelan dentro del sistema.
 * Las aulas son referencias externas.
-* El directorio universitario es un sistema externo.
+* El registro de usuarios es interno y local.
 * No existe entidad facultad.
 * Los estados se manejan como texto.
 * La arquitectura debe permanecer desacoplada.
@@ -740,7 +768,7 @@ ModuloPostulacionesAuxiliar
 ModuloAuxiliares
 ModuloDisponibilidadAuxiliar
 ModuloIntegracionAulas
-ModuloIntegracionDirectorioUniversitario
+ModuloRegistroInternoUsuarios
 ModuloAuditoria
 ```
 

@@ -43,8 +43,11 @@ return new class extends Migration
             $table->string('estado', 30)->default('ACTIVA');
             $table->timestampsTz();
             $table->unique(['usuario_id', 'dia_semana', 'hora_inicio', 'hora_fin'], 'uq_disponibilidad_auxiliar');
-            $table->check('hora_fin > hora_inicio');
         });
+
+        if (in_array(DB::connection()->getDriverName(), ['mysql', 'pgsql'], true)) {
+            DB::statement('ALTER TABLE disponibilidad_auxiliar ADD CONSTRAINT chk_disponibilidad_auxiliar_horas CHECK (hora_fin > hora_inicio)');
+        }
     }
 
     public function down(): void

@@ -1,3 +1,19 @@
+# Actualización obligatoria de alcance - Registro interno de usuarios
+
+La versión vigente de EduBridgeBackend NO debe consultar un servidor externo ni un directorio universitario para registrar usuarios.
+
+Reglas actuales:
+
+1. `POST /api/v1/auth/register` recibe internamente los datos del usuario.
+2. El body debe incluir `correo_institucional`, `nombre_completo`, `rol`, `password` y `password_confirmation`.
+3. `external_user_ref` es opcional; si no se envía, se usa el correo institucional como referencia técnica interna.
+4. El rol inicial se asigna en `usuarios_roles` a partir del campo `rol`.
+5. Roles permitidos: `ESTUDIANTE`, `AUXILIAR`, `COORDINADOR`, `ADMINISTRADOR`.
+6. No debe usarse `DirectorioUniversitarioGateway` ni una API externa para obtener nombre, correo o código del usuario.
+7. La documentación, Postman, smoke tests, OpenAPI, README y modelos deben reflejar este flujo interno.
+
+---
+
 # Prompt final especializado para backend Laravel con IBEX CRUD Generator y API RESTful
 
 Este prompt debe usarse como complemento de los lineamientos generales de programación profesional.

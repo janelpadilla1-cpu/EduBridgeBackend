@@ -16,7 +16,7 @@ title Modelo de Dominio / Diagrama ER - Sistema de Ayudantías Universitarias
 entity "usuarios" as usuarios {
   * id : UUID <<PK>>
   --
-  external_user_ref : VARCHAR <<UNIQUE, EXTERNAL_REF>>
+  external_user_ref : VARCHAR <<UNIQUE, INTERNAL_REF>>
   codigo_universitario : VARCHAR <<UNIQUE>>
   correo_institucional : VARCHAR <<UNIQUE>>
   nombre_completo : VARCHAR
@@ -161,7 +161,7 @@ usuarios ||--o{ sesiones_ayudantia : dicta_como_auxiliar
 
 note bottom of usuarios
   external_user_ref no es FK interna.
-  Es una referencia desacoplada al directorio universitario.
+  Es una referencia técnica interna; si no se envía, se usa el correo.
 end note
 
 note bottom of sesiones_ayudantia

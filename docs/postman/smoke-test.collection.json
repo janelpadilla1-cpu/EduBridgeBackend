@@ -1,8 +1,8 @@
 {
   "info": {
-    "name": "EduBridgeBackend - Full API Runner Registro Interno",
+    "name": "EduBridgeBackend - Smoke Test Completo Todos los Endpoints",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "Colección alineada contra routes/api.php. Ejecuta flujo completo con payloads reales y variables encadenadas. base_url NO incluye /api."
+    "description": "Smoke test completo: prueba auth, CRUD, acciones de negocio y DELETE con payloads reales. Ejecutar desde Collection Runner."
   },
   "auth": {
     "type": "bearer",

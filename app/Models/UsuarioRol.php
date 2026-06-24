@@ -25,6 +25,7 @@ class UsuarioRol extends Model
     ];
 
     protected $casts = [
+        'created_at' => 'datetime',
     ];
 
     public function usuario(): BelongsTo

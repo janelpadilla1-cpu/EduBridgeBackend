@@ -1,8 +1,4 @@
 @startuml
-' ============================================================
-' DIAGRAMA DE CASOS DE USO - Sistema de Ayudantías Universitarias
-' ============================================================
-
 left to right direction
 skinparam shadowing false
 skinparam packageStyle rectangle
@@ -14,7 +10,6 @@ actor "Usuario universitario" as Usuario
 actor "Estudiante" as Estudiante
 actor "Auxiliar" as Auxiliar
 actor "Coordinador académico" as Coordinador
-actor "Sistema universitario externo" as Directorio
 actor "Sistema externo de aulas" as Aulas
 
 Usuario <|-- Estudiante
@@ -22,9 +17,9 @@ Usuario <|-- Auxiliar
 
 rectangle "Sistema de Ayudantías" {
 
-  usecase "Crear cuenta\nregistrando contraseña" as UC_CrearCuenta
+  usecase "Crear cuenta interna\ncon datos y rol" as UC_CrearCuenta
   usecase "Iniciar sesión" as UC_Login
-  usecase "Validar usuario\nuniversitario" as UC_ValidarUsuario
+  usecase "Asignar rol inicial\nlocal" as UC_AsignarRolInicial
 
   usecase "Consultar materias\ncon ayudantías" as UC_ConsultarMaterias
   usecase "Ver horarios\ndisponibles" as UC_VerHorarios
@@ -44,7 +39,7 @@ rectangle "Sistema de Ayudantías" {
   usecase "Registrar asistencia" as UC_RegistrarAsistencia
 
   usecase "Consultar disponibilidad\nde aula" as UC_ConsultarAula
-  usecase "Reservar aula externa" as UC_ReservarAula
+  usecase "Reservar aula" as UC_ReservarAula
 }
 
 Usuario --> UC_CrearCuenta
@@ -67,19 +62,19 @@ Coordinador --> UC_AsignarAuxiliar
 Coordinador --> UC_RevisarPostulacion
 Coordinador --> UC_RegistrarAsistencia
 
-UC_CrearCuenta ..> UC_ValidarUsuario : <<include>>
+UC_CrearCuenta ..> UC_AsignarRolInicial : <<include>>
 UC_ProgramarSesion ..> UC_ConsultarAula : <<include>>
 UC_ProgramarSesion ..> UC_ReservarAula : <<include>>
 UC_Inscribirse ..> UC_VerHorarios : <<include>>
 UC_AsignarAuxiliar ..> UC_RevisarPostulacion : <<extend>>
 
-Directorio --> UC_ValidarUsuario
 Aulas --> UC_ConsultarAula
 Aulas --> UC_ReservarAula
 
 note bottom of UC_CrearCuenta
-  El usuario solo registra contraseña.
-  Sus datos base vienen del sistema universitario externo.
+  Registro 100% interno.
+  El usuario envía correo, nombre,
+  rol y contraseña.
 end note
 
 note bottom of UC_ProgramarSesion

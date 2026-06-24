@@ -21,9 +21,12 @@ return new class extends Migration
             $table->string('estado', 30)->default('PROGRAMADA');
             $table->timestampsTz();
             $table->unique(['aula_ref_id', 'fecha', 'hora_inicio', 'hora_fin'], 'uq_sesiones_ayudantia_aula_horario');
-            $table->check('hora_fin > hora_inicio');
             $table->index('oferta_ayudantia_id');
         });
+
+        if (in_array(DB::connection()->getDriverName(), ['mysql', 'pgsql'], true)) {
+            DB::statement('ALTER TABLE sesiones_ayudantia ADD CONSTRAINT chk_sesiones_ayudantia_horas CHECK (hora_fin > hora_inicio)');
+        }
 
         Schema::create('inscripciones_ayudantia', function (Blueprint $table): void {
             $table->uuid('id')->primary();

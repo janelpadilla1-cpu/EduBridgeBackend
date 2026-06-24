@@ -1,8 +1,4 @@
 @startuml
-' ============================================================
-' DIAGRAMA DE DESPLIEGUE - Sistema de Ayudantías Universitarias
-' ============================================================
-
 skinparam shadowing false
 skinparam linetype ortho
 
@@ -16,7 +12,7 @@ node "Dispositivo del usuario" as ClientDevice {
 }
 
 node "Servidor Frontend" as FrontendServer {
-  artifact "Frontend SPA\nReact / Angular / Vue" as FrontendApp
+  artifact "Frontend SPA" as FrontendApp
 }
 
 node "Servidor Backend" as BackendServer {
@@ -25,8 +21,7 @@ node "Servidor Backend" as BackendServer {
 }
 
 node "Servidor de Base de Datos" as DatabaseServer {
-  database "ayudantias_db\nPostgreSQL" as PostgreSQL
-  database "ayudantias_local.db\nSQLite para desarrollo" as SQLite
+  database "edubridge_backend\nMySQL / MariaDB" as MySQL
 }
 
 node "Infraestructura de Integración" as IntegrationNode {
@@ -34,12 +29,8 @@ node "Infraestructura de Integración" as IntegrationNode {
   artifact "Workers de notificación\nopcional" as Workers
 }
 
-cloud "Sistema Universitario Externo" as UniversitySystem {
-  artifact "Directorio de usuarios" as DirectoryAPI
-}
-
 cloud "Sistema Externo de Aulas" as ClassroomSystem {
-  artifact "API de aulas y disponibilidad" as ClassroomAPI
+  artifact "API de aulas y disponibilidad\n(fake en local)" as ClassroomAPI
 }
 
 cloud "Servicio de Notificación" as NotificationCloud {
@@ -52,22 +43,15 @@ Browser --> FrontendApp : HTTPS
 FrontendApp --> BackendApp : HTTPS / REST
 
 BackendApp --> BackendModules
-BackendModules --> PostgreSQL : SQL
-BackendModules ..> SQLite : solo entorno local/dev
-
-BackendApp --> DirectoryAPI : validar usuario externo
+BackendModules --> MySQL : SQL
 BackendApp --> ClassroomAPI : consultar/reservar aula
 BackendApp --> Broker : publicar eventos
 Broker --> Workers : procesar eventos
 Workers --> NotificationAPI : enviar notificación
 
-note bottom of SQLite
-  SQLite se recomienda solo para desarrollo,
-  pruebas locales o prototipos.
-end note
-
-note bottom of PostgreSQL
-  PostgreSQL recomendado para producción.
+note bottom of MySQL
+  Base recomendada para Laragon.
+  El registro de usuarios es interno.
 end note
 
 @enduml

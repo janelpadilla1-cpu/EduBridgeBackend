@@ -9,6 +9,7 @@ use App\Models\RolUsuario;
 use App\Repositories\Contracts\PostulacionAuxiliarRepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class PostulacionAuxiliarService extends BaseCrudService
 {
@@ -65,7 +66,9 @@ class PostulacionAuxiliarService extends BaseCrudService
                 ['descripcion' => 'Usuario que puede dictar sesiones de ayudantía']
             );
 
-            $postulacion->usuario->roles()->syncWithoutDetaching([$rolAuxiliar->id]);
+            $postulacion->usuario->roles()->syncWithoutDetaching([
+                $rolAuxiliar->id => ['id' => (string) Str::uuid()],
+            ]);
 
             return $postulacion->refresh();
         });

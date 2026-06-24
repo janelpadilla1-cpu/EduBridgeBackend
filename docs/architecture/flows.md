@@ -1,13 +1,16 @@
 # Flujos principales
 
-## Registro de cuenta local
+## Registro de cuenta local interna
 
-1. El usuario envía `external_user_ref`, correo institucional opcional y contraseña.
-2. `AuthService` valida el usuario contra `DirectorioUniversitarioGatewayInterface`.
-3. Si el usuario existe externamente, se crea o reutiliza el registro `usuarios`.
+1. El usuario envía `correo_institucional`, `nombre_completo`, `rol`, contraseña y, opcionalmente, `codigo_universitario` y `external_user_ref`.
+2. `RegisterRequest` normaliza correo y rol, y valida que el rol sea uno de: `ESTUDIANTE`, `AUXILIAR`, `COORDINADOR` o `ADMINISTRADOR`.
+3. `AuthService` crea el registro en `usuarios` usando únicamente la información enviada al backend.
 4. Se crea `cuentas_usuario` con `password_hash`.
-5. Se asigna el rol `ESTUDIANTE`.
-6. Se emite token Sanctum.
+5. Se busca o crea el rol local en `roles_usuario`.
+6. Se crea la relación en `usuarios_roles` con UUID propio.
+7. Se emite token Sanctum.
+
+> Decisión vigente: el registro ya no consulta `gateway de directorio de usuarios` ni ningún servidor externo de usuarios. Todo el alta de usuario es interna.
 
 ## Inicio de sesión
 
@@ -53,10 +56,11 @@
 
 ## Programación de sesión
 
-1. El coordinador envía oferta, fecha, hora y aula externa.
+1. El coordinador envía oferta, fecha, hora y aula.
 2. `SesionAyudantiaService` consulta disponibilidad con `AulaGatewayInterface`.
-3. Si el aula está disponible, reserva el aula.
-4. Se crea `sesiones_ayudantia` en estado `PROGRAMADA`.
+3. En desarrollo local se usa `FakeAulaGateway`.
+4. Si el aula está disponible, se reserva.
+5. Se crea `sesiones_ayudantia` en estado `PROGRAMADA`.
 
 ## Estados
 

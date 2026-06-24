@@ -6,7 +6,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:8000"
+      "url": "http://127.0.0.1:8000"
     }
   ],
   "components": {
@@ -16,18 +16,98 @@
         "scheme": "bearer",
         "bearerFormat": "Opaque Sanctum Token"
       }
+    },
+    "schemas": {
+      "RegisterRequest": {
+        "type": "object",
+        "required": [
+          "correo_institucional",
+          "nombre_completo",
+          "rol",
+          "password",
+          "password_confirmation"
+        ],
+        "properties": {
+          "external_user_ref": {
+            "type": "string",
+            "description": "Opcional. Si no se envía se usa el correo institucional."
+          },
+          "codigo_universitario": {
+            "type": "string",
+            "nullable": true
+          },
+          "correo_institucional": {
+            "type": "string",
+            "format": "email"
+          },
+          "nombre_completo": {
+            "type": "string"
+          },
+          "rol": {
+            "type": "string",
+            "enum": [
+              "ESTUDIANTE",
+              "AUXILIAR",
+              "COORDINADOR",
+              "ADMINISTRADOR"
+            ]
+          },
+          "password": {
+            "type": "string",
+            "format": "password"
+          },
+          "password_confirmation": {
+            "type": "string",
+            "format": "password"
+          }
+        },
+        "example": {
+          "correo_institucional": "estudiante.demo@edu.bo",
+          "nombre_completo": "Estudiante Demo",
+          "rol": "ESTUDIANTE",
+          "password": "Password123!",
+          "password_confirmation": "Password123!"
+        }
+      }
     }
   },
   "paths": {
+    "/api/v1/catalogos/estados": {
+      "get": {
+        "summary": "Catálogos de estados",
+        "tags": [
+          "Catalogos"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/auth/register": {
       "post": {
-        "summary": "Crear cuenta local",
+        "summary": "Registrar cuenta interna",
         "tags": [
           "Auth"
         ],
         "responses": {
           "201": {
-            "description": "Cuenta creada"
+            "description": "Cuenta creada y token emitido"
+          },
+          "422": {
+            "description": "Datos inválidos o rol no permitido"
+          }
+        },
+        "description": "Crea usuario, cuenta y rol inicial en la base local. No consulta directorio externo de usuarios.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
           }
         }
       }
@@ -40,7 +120,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Sesión iniciada"
+            "description": "OK"
           }
         }
       }
@@ -51,16 +131,16 @@
         "tags": [
           "Auth"
         ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
         "security": [
           {
             "sanctum": []
           }
-        ],
-        "responses": {
-          "200": {
-            "description": "Usuario autenticado"
-          }
-        }
+        ]
       }
     },
     "/api/v1/auth/logout": {
@@ -69,23 +149,23 @@
         "tags": [
           "Auth"
         ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
         "security": [
           {
             "sanctum": []
           }
-        ],
-        "responses": {
-          "204": {
-            "description": "Sesión cerrada"
-          }
-        }
+        ]
       }
     },
     "/api/v1/usuarios": {
       "get": {
-        "summary": "Listar Usuario",
+        "summary": "Listar Usuarios",
         "tags": [
-          "Usuario"
+          "Usuarios"
         ],
         "security": [
           {
@@ -99,9 +179,9 @@
         }
       },
       "post": {
-        "summary": "Crear Usuario",
+        "summary": "Crear Usuarios",
         "tags": [
-          "Usuario"
+          "Usuarios"
         ],
         "security": [
           {
@@ -117,9 +197,9 @@
     },
     "/api/v1/usuarios/{id}": {
       "get": {
-        "summary": "Ver Usuario",
+        "summary": "Ver Usuarios",
         "tags": [
-          "Usuario"
+          "Usuarios"
         ],
         "security": [
           {
@@ -144,9 +224,9 @@
         }
       },
       "put": {
-        "summary": "Actualizar Usuario",
+        "summary": "Actualizar Usuarios",
         "tags": [
-          "Usuario"
+          "Usuarios"
         ],
         "security": [
           {
@@ -171,9 +251,9 @@
         }
       },
       "patch": {
-        "summary": "Actualizar parcialmente Usuario",
+        "summary": "Actualizar parcialmente Usuarios",
         "tags": [
-          "Usuario"
+          "Usuarios"
         ],
         "security": [
           {
@@ -198,9 +278,9 @@
         }
       },
       "delete": {
-        "summary": "Eliminar Usuario",
+        "summary": "Eliminar Usuarios",
         "tags": [
-          "Usuario"
+          "Usuarios"
         ],
         "security": [
           {
@@ -227,9 +307,9 @@
     },
     "/api/v1/cuentas-usuario": {
       "get": {
-        "summary": "Listar CuentaUsuario",
+        "summary": "Listar Cuentas Usuario",
         "tags": [
-          "CuentaUsuario"
+          "Cuentas Usuario"
         ],
         "security": [
           {
@@ -243,9 +323,9 @@
         }
       },
       "post": {
-        "summary": "Crear CuentaUsuario",
+        "summary": "Crear Cuentas Usuario",
         "tags": [
-          "CuentaUsuario"
+          "Cuentas Usuario"
         ],
         "security": [
           {
@@ -261,9 +341,9 @@
     },
     "/api/v1/cuentas-usuario/{id}": {
       "get": {
-        "summary": "Ver CuentaUsuario",
+        "summary": "Ver Cuentas Usuario",
         "tags": [
-          "CuentaUsuario"
+          "Cuentas Usuario"
         ],
         "security": [
           {
@@ -288,9 +368,9 @@
         }
       },
       "put": {
-        "summary": "Actualizar CuentaUsuario",
+        "summary": "Actualizar Cuentas Usuario",
         "tags": [
-          "CuentaUsuario"
+          "Cuentas Usuario"
         ],
         "security": [
           {
@@ -315,9 +395,9 @@
         }
       },
       "patch": {
-        "summary": "Actualizar parcialmente CuentaUsuario",
+        "summary": "Actualizar parcialmente Cuentas Usuario",
         "tags": [
-          "CuentaUsuario"
+          "Cuentas Usuario"
         ],
         "security": [
           {
@@ -342,9 +422,9 @@
         }
       },
       "delete": {
-        "summary": "Eliminar CuentaUsuario",
+        "summary": "Eliminar Cuentas Usuario",
         "tags": [
-          "CuentaUsuario"
+          "Cuentas Usuario"
         ],
         "security": [
           {
@@ -371,9 +451,9 @@
     },
     "/api/v1/roles-usuario": {
       "get": {
-        "summary": "Listar RolUsuario",
+        "summary": "Listar Roles Usuario",
         "tags": [
-          "RolUsuario"
+          "Roles Usuario"
         ],
         "security": [
           {
@@ -387,9 +467,9 @@
         }
       },
       "post": {
-        "summary": "Crear RolUsuario",
+        "summary": "Crear Roles Usuario",
         "tags": [
-          "RolUsuario"
+          "Roles Usuario"
         ],
         "security": [
           {
@@ -405,9 +485,9 @@
     },
     "/api/v1/roles-usuario/{id}": {
       "get": {
-        "summary": "Ver RolUsuario",
+        "summary": "Ver Roles Usuario",
         "tags": [
-          "RolUsuario"
+          "Roles Usuario"
         ],
         "security": [
           {
@@ -432,9 +512,9 @@
         }
       },
       "put": {
-        "summary": "Actualizar RolUsuario",
+        "summary": "Actualizar Roles Usuario",
         "tags": [
-          "RolUsuario"
+          "Roles Usuario"
         ],
         "security": [
           {
@@ -459,9 +539,9 @@
         }
       },
       "patch": {
-        "summary": "Actualizar parcialmente RolUsuario",
+        "summary": "Actualizar parcialmente Roles Usuario",
         "tags": [
-          "RolUsuario"
+          "Roles Usuario"
         ],
         "security": [
           {
@@ -486,9 +566,9 @@
         }
       },
       "delete": {
-        "summary": "Eliminar RolUsuario",
+        "summary": "Eliminar Roles Usuario",
         "tags": [
-          "RolUsuario"
+          "Roles Usuario"
         ],
         "security": [
           {
@@ -515,9 +595,9 @@
     },
     "/api/v1/usuarios-roles": {
       "get": {
-        "summary": "Listar UsuarioRol",
+        "summary": "Listar Usuarios Roles",
         "tags": [
-          "UsuarioRol"
+          "Usuarios Roles"
         ],
         "security": [
           {
@@ -531,9 +611,9 @@
         }
       },
       "post": {
-        "summary": "Crear UsuarioRol",
+        "summary": "Crear Usuarios Roles",
         "tags": [
-          "UsuarioRol"
+          "Usuarios Roles"
         ],
         "security": [
           {
@@ -549,9 +629,9 @@
     },
     "/api/v1/usuarios-roles/{id}": {
       "get": {
-        "summary": "Ver UsuarioRol",
+        "summary": "Ver Usuarios Roles",
         "tags": [
-          "UsuarioRol"
+          "Usuarios Roles"
         ],
         "security": [
           {
@@ -576,9 +656,9 @@
         }
       },
       "put": {
-        "summary": "Actualizar UsuarioRol",
+        "summary": "Actualizar Usuarios Roles",
         "tags": [
-          "UsuarioRol"
+          "Usuarios Roles"
         ],
         "security": [
           {
@@ -603,9 +683,9 @@
         }
       },
       "patch": {
-        "summary": "Actualizar parcialmente UsuarioRol",
+        "summary": "Actualizar parcialmente Usuarios Roles",
         "tags": [
-          "UsuarioRol"
+          "Usuarios Roles"
         ],
         "security": [
           {
@@ -630,9 +710,9 @@
         }
       },
       "delete": {
-        "summary": "Eliminar UsuarioRol",
+        "summary": "Eliminar Usuarios Roles",
         "tags": [
-          "UsuarioRol"
+          "Usuarios Roles"
         ],
         "security": [
           {
@@ -659,9 +739,9 @@
     },
     "/api/v1/materias": {
       "get": {
-        "summary": "Listar Materia",
+        "summary": "Listar Materias",
         "tags": [
-          "Materia"
+          "Materias"
         ],
         "security": [
           {
@@ -675,9 +755,9 @@
         }
       },
       "post": {
-        "summary": "Crear Materia",
+        "summary": "Crear Materias",
         "tags": [
-          "Materia"
+          "Materias"
         ],
         "security": [
           {
@@ -693,9 +773,9 @@
     },
     "/api/v1/materias/{id}": {
       "get": {
-        "summary": "Ver Materia",
+        "summary": "Ver Materias",
         "tags": [
-          "Materia"
+          "Materias"
         ],
         "security": [
           {
@@ -720,9 +800,9 @@
         }
       },
       "put": {
-        "summary": "Actualizar Materia",
+        "summary": "Actualizar Materias",
         "tags": [
-          "Materia"
+          "Materias"
         ],
         "security": [
           {
@@ -747,9 +827,9 @@
         }
       },
       "patch": {
-        "summary": "Actualizar parcialmente Materia",
+        "summary": "Actualizar parcialmente Materias",
         "tags": [
-          "Materia"
+          "Materias"
         ],
         "security": [
           {
@@ -774,9 +854,9 @@
         }
       },
       "delete": {
-        "summary": "Eliminar Materia",
+        "summary": "Eliminar Materias",
         "tags": [
-          "Materia"
+          "Materias"
         ],
         "security": [
           {
@@ -803,9 +883,9 @@
     },
     "/api/v1/ofertas-ayudantia": {
       "get": {
-        "summary": "Listar OfertaAyudantia",
+        "summary": "Listar Ofertas Ayudantia",
         "tags": [
-          "OfertaAyudantia"
+          "Ofertas Ayudantia"
         ],
         "security": [
           {
@@ -819,9 +899,9 @@
         }
       },
       "post": {
-        "summary": "Crear OfertaAyudantia",
+        "summary": "Crear Ofertas Ayudantia",
         "tags": [
-          "OfertaAyudantia"
+          "Ofertas Ayudantia"
         ],
         "security": [
           {
@@ -837,9 +917,9 @@
     },
     "/api/v1/ofertas-ayudantia/{id}": {
       "get": {
-        "summary": "Ver OfertaAyudantia",
+        "summary": "Ver Ofertas Ayudantia",
         "tags": [
-          "OfertaAyudantia"
+          "Ofertas Ayudantia"
         ],
         "security": [
           {
@@ -864,9 +944,9 @@
         }
       },
       "put": {
-        "summary": "Actualizar OfertaAyudantia",
+        "summary": "Actualizar Ofertas Ayudantia",
         "tags": [
-          "OfertaAyudantia"
+          "Ofertas Ayudantia"
         ],
         "security": [
           {
@@ -891,9 +971,9 @@
         }
       },
       "patch": {
-        "summary": "Actualizar parcialmente OfertaAyudantia",
+        "summary": "Actualizar parcialmente Ofertas Ayudantia",
         "tags": [
-          "OfertaAyudantia"
+          "Ofertas Ayudantia"
         ],
         "security": [
           {
@@ -918,9 +998,9 @@
         }
       },
       "delete": {
-        "summary": "Eliminar OfertaAyudantia",
+        "summary": "Eliminar Ofertas Ayudantia",
         "tags": [
-          "OfertaAyudantia"
+          "Ofertas Ayudantia"
         ],
         "security": [
           {
@@ -947,9 +1027,9 @@
     },
     "/api/v1/sesiones-ayudantia": {
       "get": {
-        "summary": "Listar SesionAyudantia",
+        "summary": "Listar Sesiones Ayudantia",
         "tags": [
-          "SesionAyudantia"
+          "Sesiones Ayudantia"
         ],
         "security": [
           {
@@ -963,9 +1043,9 @@
         }
       },
       "post": {
-        "summary": "Crear SesionAyudantia",
+        "summary": "Crear Sesiones Ayudantia",
         "tags": [
-          "SesionAyudantia"
+          "Sesiones Ayudantia"
         ],
         "security": [
           {
@@ -981,9 +1061,9 @@
     },
     "/api/v1/sesiones-ayudantia/{id}": {
       "get": {
-        "summary": "Ver SesionAyudantia",
+        "summary": "Ver Sesiones Ayudantia",
         "tags": [
-          "SesionAyudantia"
+          "Sesiones Ayudantia"
         ],
         "security": [
           {
@@ -1008,9 +1088,9 @@
         }
       },
       "put": {
-        "summary": "Actualizar SesionAyudantia",
+        "summary": "Actualizar Sesiones Ayudantia",
         "tags": [
-          "SesionAyudantia"
+          "Sesiones Ayudantia"
         ],
         "security": [
           {
@@ -1035,9 +1115,9 @@
         }
       },
       "patch": {
-        "summary": "Actualizar parcialmente SesionAyudantia",
+        "summary": "Actualizar parcialmente Sesiones Ayudantia",
         "tags": [
-          "SesionAyudantia"
+          "Sesiones Ayudantia"
         ],
         "security": [
           {
@@ -1062,9 +1142,9 @@
         }
       },
       "delete": {
-        "summary": "Eliminar SesionAyudantia",
+        "summary": "Eliminar Sesiones Ayudantia",
         "tags": [
-          "SesionAyudantia"
+          "Sesiones Ayudantia"
         ],
         "security": [
           {
@@ -1091,9 +1171,9 @@
     },
     "/api/v1/inscripciones-ayudantia": {
       "get": {
-        "summary": "Listar InscripcionAyudantia",
+        "summary": "Listar Inscripciones Ayudantia",
         "tags": [
-          "InscripcionAyudantia"
+          "Inscripciones Ayudantia"
         ],
         "security": [
           {
@@ -1107,9 +1187,9 @@
         }
       },
       "post": {
-        "summary": "Crear InscripcionAyudantia",
+        "summary": "Crear Inscripciones Ayudantia",
         "tags": [
-          "InscripcionAyudantia"
+          "Inscripciones Ayudantia"
         ],
         "security": [
           {
@@ -1125,9 +1205,9 @@
     },
     "/api/v1/inscripciones-ayudantia/{id}": {
       "get": {
-        "summary": "Ver InscripcionAyudantia",
+        "summary": "Ver Inscripciones Ayudantia",
         "tags": [
-          "InscripcionAyudantia"
+          "Inscripciones Ayudantia"
         ],
         "security": [
           {
@@ -1152,9 +1232,9 @@
         }
       },
       "put": {
-        "summary": "Actualizar InscripcionAyudantia",
+        "summary": "Actualizar Inscripciones Ayudantia",
         "tags": [
-          "InscripcionAyudantia"
+          "Inscripciones Ayudantia"
         ],
         "security": [
           {
@@ -1179,9 +1259,9 @@
         }
       },
       "patch": {
-        "summary": "Actualizar parcialmente InscripcionAyudantia",
+        "summary": "Actualizar parcialmente Inscripciones Ayudantia",
         "tags": [
-          "InscripcionAyudantia"
+          "Inscripciones Ayudantia"
         ],
         "security": [
           {
@@ -1206,9 +1286,9 @@
         }
       },
       "delete": {
-        "summary": "Eliminar InscripcionAyudantia",
+        "summary": "Eliminar Inscripciones Ayudantia",
         "tags": [
-          "InscripcionAyudantia"
+          "Inscripciones Ayudantia"
         ],
         "security": [
           {
@@ -1235,9 +1315,9 @@
     },
     "/api/v1/postulaciones-auxiliar": {
       "get": {
-        "summary": "Listar PostulacionAuxiliar",
+        "summary": "Listar Postulaciones Auxiliar",
         "tags": [
-          "PostulacionAuxiliar"
+          "Postulaciones Auxiliar"
         ],
         "security": [
           {
@@ -1251,9 +1331,9 @@
         }
       },
       "post": {
-        "summary": "Crear PostulacionAuxiliar",
+        "summary": "Crear Postulaciones Auxiliar",
         "tags": [
-          "PostulacionAuxiliar"
+          "Postulaciones Auxiliar"
         ],
         "security": [
           {
@@ -1269,9 +1349,9 @@
     },
     "/api/v1/postulaciones-auxiliar/{id}": {
       "get": {
-        "summary": "Ver PostulacionAuxiliar",
+        "summary": "Ver Postulaciones Auxiliar",
         "tags": [
-          "PostulacionAuxiliar"
+          "Postulaciones Auxiliar"
         ],
         "security": [
           {
@@ -1296,9 +1376,9 @@
         }
       },
       "put": {
-        "summary": "Actualizar PostulacionAuxiliar",
+        "summary": "Actualizar Postulaciones Auxiliar",
         "tags": [
-          "PostulacionAuxiliar"
+          "Postulaciones Auxiliar"
         ],
         "security": [
           {
@@ -1323,9 +1403,9 @@
         }
       },
       "patch": {
-        "summary": "Actualizar parcialmente PostulacionAuxiliar",
+        "summary": "Actualizar parcialmente Postulaciones Auxiliar",
         "tags": [
-          "PostulacionAuxiliar"
+          "Postulaciones Auxiliar"
         ],
         "security": [
           {
@@ -1350,9 +1430,9 @@
         }
       },
       "delete": {
-        "summary": "Eliminar PostulacionAuxiliar",
+        "summary": "Eliminar Postulaciones Auxiliar",
         "tags": [
-          "PostulacionAuxiliar"
+          "Postulaciones Auxiliar"
         ],
         "security": [
           {
@@ -1379,9 +1459,9 @@
     },
     "/api/v1/auxiliares-materia": {
       "get": {
-        "summary": "Listar AuxiliarMateria",
+        "summary": "Listar Auxiliares Materia",
         "tags": [
-          "AuxiliarMateria"
+          "Auxiliares Materia"
         ],
         "security": [
           {
@@ -1395,9 +1475,9 @@
         }
       },
       "post": {
-        "summary": "Crear AuxiliarMateria",
+        "summary": "Crear Auxiliares Materia",
         "tags": [
-          "AuxiliarMateria"
+          "Auxiliares Materia"
         ],
         "security": [
           {
@@ -1413,9 +1493,9 @@
     },
     "/api/v1/auxiliares-materia/{id}": {
       "get": {
-        "summary": "Ver AuxiliarMateria",
+        "summary": "Ver Auxiliares Materia",
         "tags": [
-          "AuxiliarMateria"
+          "Auxiliares Materia"
         ],
         "security": [
           {
@@ -1440,9 +1520,9 @@
         }
       },
       "put": {
-        "summary": "Actualizar AuxiliarMateria",
+        "summary": "Actualizar Auxiliares Materia",
         "tags": [
-          "AuxiliarMateria"
+          "Auxiliares Materia"
         ],
         "security": [
           {
@@ -1467,9 +1547,9 @@
         }
       },
       "patch": {
-        "summary": "Actualizar parcialmente AuxiliarMateria",
+        "summary": "Actualizar parcialmente Auxiliares Materia",
         "tags": [
-          "AuxiliarMateria"
+          "Auxiliares Materia"
         ],
         "security": [
           {
@@ -1494,9 +1574,9 @@
         }
       },
       "delete": {
-        "summary": "Eliminar AuxiliarMateria",
+        "summary": "Eliminar Auxiliares Materia",
         "tags": [
-          "AuxiliarMateria"
+          "Auxiliares Materia"
         ],
         "security": [
           {
@@ -1523,9 +1603,9 @@
     },
     "/api/v1/disponibilidad-auxiliar": {
       "get": {
-        "summary": "Listar DisponibilidadAuxiliar",
+        "summary": "Listar Disponibilidad Auxiliar",
         "tags": [
-          "DisponibilidadAuxiliar"
+          "Disponibilidad Auxiliar"
         ],
         "security": [
           {
@@ -1539,9 +1619,9 @@
         }
       },
       "post": {
-        "summary": "Crear DisponibilidadAuxiliar",
+        "summary": "Crear Disponibilidad Auxiliar",
         "tags": [
-          "DisponibilidadAuxiliar"
+          "Disponibilidad Auxiliar"
         ],
         "security": [
           {
@@ -1557,9 +1637,9 @@
     },
     "/api/v1/disponibilidad-auxiliar/{id}": {
       "get": {
-        "summary": "Ver DisponibilidadAuxiliar",
+        "summary": "Ver Disponibilidad Auxiliar",
         "tags": [
-          "DisponibilidadAuxiliar"
+          "Disponibilidad Auxiliar"
         ],
         "security": [
           {
@@ -1584,9 +1664,9 @@
         }
       },
       "put": {
-        "summary": "Actualizar DisponibilidadAuxiliar",
+        "summary": "Actualizar Disponibilidad Auxiliar",
         "tags": [
-          "DisponibilidadAuxiliar"
+          "Disponibilidad Auxiliar"
         ],
         "security": [
           {
@@ -1611,9 +1691,9 @@
         }
       },
       "patch": {
-        "summary": "Actualizar parcialmente DisponibilidadAuxiliar",
+        "summary": "Actualizar parcialmente Disponibilidad Auxiliar",
         "tags": [
-          "DisponibilidadAuxiliar"
+          "Disponibilidad Auxiliar"
         ],
         "security": [
           {
@@ -1638,9 +1718,9 @@
         }
       },
       "delete": {
-        "summary": "Eliminar DisponibilidadAuxiliar",
+        "summary": "Eliminar Disponibilidad Auxiliar",
         "tags": [
-          "DisponibilidadAuxiliar"
+          "Disponibilidad Auxiliar"
         ],
         "security": [
           {
@@ -1661,6 +1741,358 @@
         "responses": {
           "204": {
             "description": "Eliminado"
+          }
+        }
+      }
+    },
+    "/api/v1/ofertas-ayudantia/{id}/publicar": {
+      "post": {
+        "summary": "Publicar oferta",
+        "tags": [
+          "Acciones de negocio"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "422": {
+            "description": "Regla de negocio no permitida"
+          }
+        }
+      }
+    },
+    "/api/v1/ofertas-ayudantia/{id}/cerrar": {
+      "post": {
+        "summary": "Cerrar oferta",
+        "tags": [
+          "Acciones de negocio"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "422": {
+            "description": "Regla de negocio no permitida"
+          }
+        }
+      }
+    },
+    "/api/v1/ofertas-ayudantia/{id}/cancelar": {
+      "post": {
+        "summary": "Cancelar oferta",
+        "tags": [
+          "Acciones de negocio"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "422": {
+            "description": "Regla de negocio no permitida"
+          }
+        }
+      }
+    },
+    "/api/v1/sesiones-ayudantia/{id}/iniciar": {
+      "post": {
+        "summary": "Iniciar sesión",
+        "tags": [
+          "Acciones de negocio"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "422": {
+            "description": "Regla de negocio no permitida"
+          }
+        }
+      }
+    },
+    "/api/v1/sesiones-ayudantia/{id}/finalizar": {
+      "post": {
+        "summary": "Finalizar sesión",
+        "tags": [
+          "Acciones de negocio"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "422": {
+            "description": "Regla de negocio no permitida"
+          }
+        }
+      }
+    },
+    "/api/v1/sesiones-ayudantia/{id}/cancelar": {
+      "post": {
+        "summary": "Cancelar sesión",
+        "tags": [
+          "Acciones de negocio"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "422": {
+            "description": "Regla de negocio no permitida"
+          }
+        }
+      }
+    },
+    "/api/v1/inscripciones-ayudantia/{id}/cancelar": {
+      "post": {
+        "summary": "Cancelar inscripción",
+        "tags": [
+          "Acciones de negocio"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "422": {
+            "description": "Regla de negocio no permitida"
+          }
+        }
+      }
+    },
+    "/api/v1/inscripciones-ayudantia/{id}/asistencia": {
+      "patch": {
+        "summary": "Registrar asistencia",
+        "tags": [
+          "Acciones de negocio"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "422": {
+            "description": "Regla de negocio no permitida"
+          }
+        }
+      }
+    },
+    "/api/v1/postulaciones-auxiliar/{id}/aprobar": {
+      "post": {
+        "summary": "Aprobar postulación",
+        "tags": [
+          "Acciones de negocio"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "422": {
+            "description": "Regla de negocio no permitida"
+          }
+        }
+      }
+    },
+    "/api/v1/postulaciones-auxiliar/{id}/rechazar": {
+      "post": {
+        "summary": "Rechazar postulación",
+        "tags": [
+          "Acciones de negocio"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "422": {
+            "description": "Regla de negocio no permitida"
+          }
+        }
+      }
+    },
+    "/api/v1/postulaciones-auxiliar/{id}/cancelar": {
+      "post": {
+        "summary": "Cancelar postulación",
+        "tags": [
+          "Acciones de negocio"
+        ],
+        "security": [
+          {
+            "sanctum": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "422": {
+            "description": "Regla de negocio no permitida"
           }
         }
       }

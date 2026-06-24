@@ -1,312 +1,409 @@
-# Prompt raíz del proyecto EduBridgeBackend
+# Actualización obligatoria de alcance - Registro interno de usuarios
 
-## 0. Objetivo del proyecto
+La versión vigente de EduBridgeBackend NO debe consultar un servidor externo ni un directorio universitario para registrar usuarios.
 
-Generar una API RESTful completa para **EduBridgeBackend**, un sistema de ayudantías universitarias donde estudiantes pueden inscribirse a sesiones de apoyo académico y postularse como auxiliares, mientras coordinadores académicos administran materias, ofertas, sesiones, postulaciones y asistencia.
+Reglas actuales:
 
-El entregable debe ser un backend Laravel de producción, mantenible, documentado y alineado con los diagramas y el DDL incluidos en este repositorio.
-
----
-
-## 1. Stack obligatorio
-
-El proyecto debe desarrollarse con:
-
-- PHP moderno.
-- Laravel como framework backend principal.
-- Eloquent ORM como capa de persistencia.
-- Migraciones Laravel para estructura de base de datos.
-- Form Requests para validación de entrada.
-- API Resources para respuestas JSON.
-- Controllers API delgados.
-- Services para reglas de negocio.
-- Repositories para acceso a datos cuando el módulo tenga lógica suficiente.
-- Policies o Gates cuando se agreguen permisos finos.
-- Laravel Sanctum si se requiere autenticación por API.
-- PostgreSQL como base recomendada para producción.
-- SQLite solo para desarrollo local o pruebas.
-- Estructura compatible con IBEX CRUD Generator.
-
-No usar por defecto:
-
-- Redis.
-- JWT.
-- Express.
-- NestJS.
-- Node.js.
-- TypeScript.
-- Sequelize.
-- Zod.
+1. `POST /api/v1/auth/register` recibe internamente los datos del usuario.
+2. El body debe incluir `correo_institucional`, `nombre_completo`, `rol`, `password` y `password_confirmation`.
+3. `external_user_ref` es opcional; si no se envía, se usa el correo institucional como referencia técnica interna.
+4. El rol inicial se asigna en `usuarios_roles` a partir del campo `rol`.
+5. Roles permitidos: `ESTUDIANTE`, `AUXILIAR`, `COORDINADOR`, `ADMINISTRADOR`.
+6. No debe usarse `DirectorioUniversitarioGateway` ni una API externa para obtener nombre, correo o código del usuario.
+7. La documentación, Postman, smoke tests, OpenAPI, README y modelos deben reflejar este flujo interno.
 
 ---
 
-## 2. Lectura obligatoria de prompts base
+# Instrucciones generales de generación del proyecto
 
-Antes de generar o modificar código, leer y aplicar:
+## 0. Modo de trabajo obligatorio: precisión, temperatura 0 y cero adivinanzas
+
+Este proyecto debe trabajarse con un criterio equivalente a **temperatura 0**: máxima precisión, mínima creatividad especulativa y ninguna invención de requisitos, entidades, endpoints, reglas de negocio, nombres de archivos, relaciones, estados, variables de entorno, configuraciones o decisiones técnicas no respaldadas por los documentos entregados.
+
+No debes asumir información crítica. No debes completar vacíos con ideas propias. No debes producir código, diagramas, documentación o estructura si falta información necesaria para hacerlo correctamente.
+
+Si durante el análisis detectas que falta información indispensable, existe una contradicción entre documentos, un diagrama es ambiguo, una regla de negocio no está definida o una decisión técnica afecta producción y no está especificada, debes **detener inmediatamente el procesamiento** y pedir la información faltante antes de continuar.
+
+El resultado debe estar pensado para **producción real**, no como un proyecto académico, demostrativo o de tutorial. Debe poder entregarse a clientes técnicos y exigentes que esperan una solución profesional, mantenible, segura, documentada, auditable y preparada para operación real.
+
+
+## 1. Lectura obligatoria de prompts base
+
+Antes de generar código, estructura, documentación o cualquier archivo del proyecto, debes leer y aplicar las instrucciones detalladas en los siguientes documentos ubicados en esta misma carpeta:
 
 ```txt
-prompt/programacionGeneral.md
-prompt/programacionBackend.md
+./programacionGeneral.md
+./programacionBackend.md
 ```
 
-`programacionBackend.md` tiene prioridad para decisiones específicas de backend Laravel e IBEX CRUD Generator.
+Primero debes aplicar los lineamientos generales de `programacionGeneral.md` y luego especializar la solución según las reglas de `programacionBackend.md`.
+
+Las instrucciones de ambos documentos son obligatorias y deben cumplirse durante toda la generación del proyecto.
 
 ---
 
-## 3. Fuentes funcionales del sistema
+## 2. Lectura y análisis de diagramas del sistema
 
-La fuente principal del dominio está en:
+Debes revisar la carpeta `systemInfo` y analizar los diagramas que describen el modelo del sistema.
+
+Los diagramas deben considerarse en el siguiente orden de prioridad:
 
 ```txt
-docs/systemInfo/domainModel.puml
-docs/systemInfo/caseUseModel.puml
-docs/systemInfo/classDiagram.puml
-docs/systemInfo/stateDiagram.puml
-docs/systemInfo/activityDiagramMainFlow.puml
-docs/systemInfo/componentDiagram.puml
-docs/systemInfo/sequenceDiagram.puml
-docs/systemInfo/deployDiagram.puml
-docs/db/ddl.sql
+1. domainModel.puml
+2. caseUseModel.puml
+3. classDiagram.puml
+4. stateDiagram.puml
+5. activityDiagramMainFlow.puml
+6. Otros activity diagrams existentes
+7. componentDiagram.puml
+8. sequenceDiagram.puml
+9. deployDiagram.puml
 ```
 
-Prioridad de lectura:
+### Nota sobre activity diagrams
 
-1. `domainModel.puml`
-2. `ddl.sql`
-3. `caseUseModel.puml`
-4. `classDiagram.puml`
-5. `stateDiagram.puml`
-6. `activityDiagramMainFlow.puml`
-7. `componentDiagram.puml`
-8. `sequenceDiagram.puml`
-9. `deployDiagram.puml`
+El archivo `activityDiagramMainFlow.puml` representa el flujo principal del sistema y debe analizarse antes que cualquier otro diagrama de actividad.
+
+Si existen otros diagramas de actividad adicionales, deben analizarse después del flujo principal y deben usarse para complementar reglas de negocio, casos alternativos, validaciones, estados o flujos secundarios.
 
 ---
 
-## 4. Entidades obligatorias
+## 3. Criterios de interpretación de los diagramas
 
-Generar modelos, migraciones, requests, resources, services, repositories y controllers API para:
+Los diagramas deben usarse como fuente principal para identificar:
 
-- `Usuario`
-- `CuentaUsuario`
-- `RolUsuario`
-- `UsuarioRol`
-- `Materia`
-- `OfertaAyudantia`
-- `SesionAyudantia`
-- `InscripcionAyudantia`
-- `PostulacionAuxiliar`
-- `AuxiliarMateria`
-- `DisponibilidadAuxiliar`
+* Entidades principales del dominio.
+* Relaciones entre entidades.
+* Casos de uso del sistema.
+* Actores involucrados.
+* Estados relevantes.
+* Flujos principales y alternativos.
+* Componentes internos.
+* Comunicación entre módulos.
+* Secuencia de operaciones.
+* Reglas de negocio implícitas.
+* Límites del sistema.
+* Dependencias externas.
+* Requerimientos de despliegue.
 
-Los nombres de tablas deben respetar el DDL:
+No debes inventar entidades, relaciones, endpoints o módulos que contradigan los diagramas.
 
-- `usuarios`
-- `cuentas_usuario`
-- `roles_usuario`
-- `usuarios_roles`
-- `materias`
-- `ofertas_ayudantia`
-- `sesiones_ayudantia`
-- `inscripciones_ayudantia`
-- `postulaciones_auxiliar`
-- `auxiliares_materia`
-- `disponibilidad_auxiliar`
+Si existe información incompleta, debes tomar decisiones razonables, documentar los supuestos y mantener consistencia con el modelo general.
 
 ---
 
-## 5. Casos de uso obligatorios
+## 4. Manejo de diagramas faltantes o incompletos
 
-Implementar como mínimo:
+Si uno o más diagramas no existen, están incompletos o presentan ambigüedades, no debes detener la generación del proyecto.
 
-### Auth
+En ese caso debes:
 
-- Crear cuenta local registrando contraseña.
-- Validar usuario universitario mediante gateway externo.
-- Iniciar sesión.
-- Ver usuario autenticado.
-- Cerrar sesión.
+1. Continuar usando los diagramas disponibles.
+2. Documentar claramente qué diagramas faltan.
+3. Indicar qué decisiones se asumieron.
+4. Evitar inventar reglas críticas sin justificación.
+5. Reflejar los supuestos en la documentación del proyecto.
 
-### Estudiante
-
-- Consultar materias con ayudantías.
-- Ver horarios disponibles.
-- Inscribirse a sesión.
-- Cancelar inscripción.
-- Ver inscripciones.
-
-### Auxiliar
-
-- Postularse como auxiliar.
-- Registrar disponibilidad.
-- Ver sesiones asignadas.
-
-### Coordinador académico
-
-- Crear materia.
-- Crear oferta de ayudantía.
-- Publicar, cerrar o cancelar oferta.
-- Programar sesión.
-- Asignar auxiliar.
-- Aprobar o rechazar postulación.
-- Registrar asistencia.
-
----
-
-## 6. Reglas de negocio principales
-
-- El usuario solo registra contraseña; sus datos base provienen del sistema universitario externo.
-- `external_user_ref` no es FK interna; es referencia externa.
-- El aula no se administra internamente; se guarda `aula_ref_id` y opcionalmente `aula_nombre_cache`.
-- Una cuenta local pertenece a un solo usuario.
-- Un usuario puede tener varios roles.
-- Una materia puede tener varias ofertas.
-- Una oferta puede tener varias sesiones.
-- Una sesión puede tener un auxiliar asignado o ninguno.
-- Una inscripción no puede duplicarse para el mismo usuario y sesión.
-- Si la sesión no tiene cupo, la inscripción entra como `EN_ESPERA`.
-- La aprobación de una postulación crea o reactiva la relación `AuxiliarMateria` y asigna rol `AUXILIAR`.
-- Los estados se guardan como texto, no como ENUM nativo.
-
----
-
-## 7. Estados válidos
-
-### OfertaAyudantia
-
-- `BORRADOR`
-- `PUBLICADA`
-- `CERRADA`
-- `CANCELADA`
-
-### SesionAyudantia
-
-- `PROGRAMADA`
-- `EN_CURSO`
-- `FINALIZADA`
-- `CANCELADA`
-
-### InscripcionAyudantia
-
-- `INSCRITO`
-- `EN_ESPERA`
-- `CANCELADO`
-- `ASISTIO`
-- `NO_ASISTIO`
-
-### PostulacionAuxiliar
-
-- `PENDIENTE`
-- `APROBADA`
-- `RECHAZADA`
-- `CANCELADA`
-
-### AuxiliarMateria
-
-- `ACTIVO`
-- `INACTIVO`
-
----
-
-## 8. Estructura esperada
+Los supuestos deben registrarse en:
 
 ```txt
-app/
-  Gateways/
-  Http/
-    Controllers/Api/V1/
-    Requests/
-    Resources/
-  Models/
-  Providers/
-  Repositories/
-    Contracts/
-    Eloquent/
-  Services/
-bootstrap/
-config/
-database/
-  factories/
-  migrations/
-  seeders/
 docs/
   architecture/
+    architecture.md
+    flows.md
+```
+
+Cuando corresponda, también deben mencionarse en:
+
+```txt
+docs/
   endpoints/
+    endpoints.md
+```
+
+---
+
+## 5. Relación entre diagramas y arquitectura generada
+
+La estructura del backend debe derivarse del análisis de los diagramas.
+
+Como regla general:
+
+* El `domainModel.puml` ayuda a identificar entidades, modelos y relaciones.
+* El `caseUseModel.puml` ayuda a identificar módulos, endpoints y permisos.
+* El `classDiagram.puml` ayuda a identificar clases, atributos, métodos y responsabilidades.
+* El `stateDiagram.puml` ayuda a identificar estados válidos y transiciones.
+* Los activity diagrams ayudan a identificar flujos de negocio y validaciones.
+* El `componentDiagram.puml` ayuda a definir módulos, capas y dependencias internas.
+* El `sequenceDiagram.puml` ayuda a definir el orden de interacción entre capas.
+* El `deployDiagram.puml` ayuda a definir configuración, variables de entorno, despliegue y dependencias externas.
+
+---
+
+## 6. Generación de entregables
+
+Debes generar todos los archivos requeridos por el prompt principal y por los prompts complementarios.
+
+La solución debe incluir, según corresponda:
+
+* Código fuente en TypeScript.
+* Backend Node.js con Express.
+* Sequelize como ORM.
+* Modelos, migraciones y seeders.
+* Repositorios.
+* Services.
+* Controllers.
+* Routes.
+* Schemas de validación con Zod.
+* Middlewares de autenticación, autorización, validación y errores.
+* Manejo seguro de JWT.
+* Documentación por carpeta mediante `README.md`.
+* Documentación de endpoints.
+* Documentación de arquitectura.
+* Documentación de flujos.
+* Colección Postman, si corresponde.
+* OpenAPI, si corresponde.
+* Smoke tests, si corresponde.
+* Pruebas sugeridas o implementadas, según el alcance solicitado.
+
+---
+
+## 7. Estructura esperada de documentación
+
+La documentación del sistema generado debe ubicarse preferentemente en:
+
+```txt
+docs/
+  endpoints/
+    endpoints.md
+    openapi.yaml
+    README.md
+
+  architecture/
+    architecture.md
+    flows.md
+    README.md
+
   postman/
-  systemInfo/
+    collection.json
+    README.md
+```
+
+Los prompts usados para generar el proyecto deben ubicarse en:
+
+```txt
 prompt/
-routes/
-tests/
+  index.md
+  programacionGeneral.md
+  programacionBackend.md
+  README.md
 ```
+
+La carpeta `prompt` no reemplaza a `docs`.
+
+* `prompt/` contiene reglas e instrucciones de generación.
+* `docs/` contiene documentación técnica del sistema generado.
 
 ---
 
-## 9. Endpoints
+## 8. Entrega final en archivo ZIP
 
-Usar versionado `/api/v1`.
+Debes devolver el resultado final comprimido en un archivo `.zip`.
 
-Para CRUD estándar usar rutas RESTful con `Route::apiResource`:
+El `.zip` debe incluir:
 
-```txt
-GET    /api/v1/materias
-POST   /api/v1/materias
-GET    /api/v1/materias/{id}
-PUT    /api/v1/materias/{id}
-PATCH  /api/v1/materias/{id}
-DELETE /api/v1/materias/{id}
-```
+* Todo el código fuente generado.
+* Toda la estructura de carpetas solicitada.
+* Todos los `README.md` requeridos.
+* Toda la documentación técnica.
+* La carpeta `docs`.
+* La carpeta `prompt`.
+* Archivos de configuración necesarios.
+* Archivos de pruebas, si corresponde.
+* Colección Postman, si corresponde.
+* Archivo OpenAPI, si corresponde.
+* Cualquier recurso adicional indicado en el prompt principal.
 
-Agregar rutas de negocio solo cuando no sean CRUD puro:
+El `.zip` debe estar organizado de forma limpia y lista para ser revisada, ejecutada o integrada en un proyecto real.
 
-```txt
-POST /api/v1/ofertas-ayudantia/{id}/publicar
-POST /api/v1/ofertas-ayudantia/{id}/cerrar
-POST /api/v1/ofertas-ayudantia/{id}/cancelar
-POST /api/v1/sesiones-ayudantia/{id}/iniciar
-POST /api/v1/sesiones-ayudantia/{id}/finalizar
-POST /api/v1/sesiones-ayudantia/{id}/cancelar
-POST /api/v1/inscripciones-ayudantia/{id}/cancelar
-PATCH /api/v1/inscripciones-ayudantia/{id}/asistencia
-POST /api/v1/postulaciones-auxiliar/{id}/aprobar
-POST /api/v1/postulaciones-auxiliar/{id}/rechazar
-POST /api/v1/postulaciones-auxiliar/{id}/cancelar
-```
+No entregues archivos sueltos si el prompt principal exige una estructura completa de proyecto.
 
 ---
 
-## 10. Documentación obligatoria
+## 9. Validación final antes de entregar
 
-Generar y mantener:
+Antes de entregar el `.zip`, verifica que:
+
+* Se aplicaron las reglas de `programacionGeneral.md`.
+* Se aplicaron las reglas de `programacionBackend.md`.
+* Se revisaron los diagramas disponibles en `systemInfo`.
+* La arquitectura respeta los diagramas.
+* El código fuente está en TypeScript.
+* No hay mezcla innecesaria de CommonJS y ES Modules.
+* Sequelize se usa como ORM principal.
+* Las validaciones usan Zod.
+* JWT está correctamente encapsulado.
+* No existe ningún controller genérico.
+* El `createCrudRepository` se usa cuando aporta valor.
+* El `createCrudService` solo se usa si el caso es simple y controlado.
+* Cada carpeta importante tiene su `README.md`.
+* Los endpoints están documentados.
+* Los flujos relevantes están documentados.
+* La estructura final es coherente, mantenible y lista para producción.
+* Revisar **DOS** veces que todo lo que se solicito en este prompt este efectivamente realizado.
+
+
+## 10. Workers como procesos persistentes de producción
+
+Todos los workers del sistema deben diseñarse como **procesos persistentes de larga duración**, no como funciones temporales que se ejecutan, procesan una tarea y mueren.
+
+Un worker debe comportarse como un proceso independiente del servidor HTTP principal, ejecutándose de forma continua mientras el sistema esté operativo.
+
+El objetivo es que el worker permanezca escuchando, consumiendo y procesando trabajos de la cola de forma controlada, segura y observable.
+
+### Reglas obligatorias
+
+1. Los workers deben ejecutarse como procesos separados del API HTTP.
+2. Los workers no deben depender de que un endpoint sea llamado para activarse.
+3. Los workers no deben iniciarse y finalizar por cada tarea individual.
+4. Los workers deben permanecer activos escuchando la cola correspondiente.
+5. Los workers deben poder procesar múltiples jobs durante su ciclo de vida.
+6. Los workers deben manejar errores sin detener todo el proceso.
+7. Los workers deben registrar logs útiles de inicio, procesamiento, errores y apagado.
+8. Los workers deben implementar apagado controlado.
+9. Los workers deben respetar límites de concurrencia.
+10. Los workers deben usar reintentos controlados cuando corresponda.
+11. Los workers deben evitar procesar dos veces el mismo job mediante idempotencia.
+12. Los workers deben integrarse con la cola definida, por ejemplo `pg-boss`, sin crear mecanismos paralelos improvisados.
+13. Los workers deben tener configuración propia mediante variables de entorno.
+14. Los workers deben documentarse en `docs/architecture/flows.md` y en el `README.md` de su carpeta correspondiente.
+
+### Estructura esperada
+
+Cuando el sistema requiera workers, deben ubicarse en una carpeta especializada.
+
+Estructura sugerida:
 
 ```txt
-docs/endpoints/endpoints.md
-docs/endpoints/openapi.yaml
-docs/endpoints/README.md
-docs/architecture/architecture.md
-docs/architecture/flows.md
-docs/architecture/README.md
-docs/postman/collection.json
-docs/postman/README.md
-README.md
+src/
+  workers/
+    email-sender/
+      email-sender.worker.ts
+      email-sender.processor.ts
+      email-sender.types.ts
+      README.md
+
+    webhook-processor/
+      webhook-processor.worker.ts
+      webhook-processor.processor.ts
+      webhook-processor.types.ts
+      README.md
+
+    index.ts
 ```
 
----
+Cada worker debe tener responsabilidades claras:
 
-## 11. Validación final
+* El archivo `.worker.ts` inicia el proceso persistente.
+* El archivo `.processor.ts` contiene la lógica de procesamiento de cada job.
+* El archivo `.types.ts` define contratos de datos.
+* El `README.md` explica qué hace el worker, qué cola consume, qué eventos procesa, qué errores maneja y cómo se ejecuta.
 
-Antes de entregar verificar:
+### Separación entre API y workers
 
-- No existe Redis por defecto.
-- No existe JWT.
-- No existe Sequelize.
-- No existe Zod.
-- No existe Express/NestJS.
-- Los controllers son delgados.
-- Las reglas de negocio están en Services.
-- Las consultas persistentes están en Repositories.
-- Las entradas se validan con Form Requests.
-- Las salidas usan API Resources.
-- Las migraciones respetan el DDL.
-- Las rutas están versionadas en `/api/v1`.
-- La documentación y Postman están actualizados.
-- Los supuestos de integraciones externas están documentados.
+El servidor HTTP y los workers deben poder ejecutarse de forma independiente.
+
+Ejemplo conceptual:
+
+```json
+{
+  "scripts": {
+    "dev:api": "tsx watch src/server.ts",
+    "dev:worker:email": "tsx watch src/workers/email-sender/email-sender.worker.ts",
+    "start:api": "node dist/server.js",
+    "start:worker:email": "node dist/workers/email-sender/email-sender.worker.js"
+  }
+}
+```
+
+No es correcto que el worker dependa de `server.ts` para funcionar, salvo que el proyecto defina explícitamente una estrategia monolítica y esta haya sido justificada.
+
+### Manejo de ciclo de vida
+
+Todo worker debe implementar ciclo de vida controlado:
+
+```txt
+Inicio del worker
+→ conexión a base de datos
+→ conexión a cola
+→ suscripción a jobs
+→ procesamiento continuo
+→ manejo de errores
+→ apagado controlado
+```
+
+Debe manejar señales del sistema como:
+
+```txt
+SIGTERM
+SIGINT
+```
+
+Durante el apagado controlado debe:
+
+1. Dejar de aceptar nuevos jobs.
+2. Terminar jobs en curso cuando sea seguro.
+3. Cerrar conexión con la cola.
+4. Cerrar conexión con base de datos.
+5. Registrar el cierre en logs.
+
+### Supervisión en producción
+
+Los workers deben estar pensados para ejecutarse bajo un supervisor de procesos o plataforma de despliegue, por ejemplo:
+
+```txt
+PM2
+Docker Compose
+Kubernetes
+systemd
+Railway
+Render
+Fly.io
+ECS
+```
+
+El código debe permitir que el worker sea reiniciado automáticamente si el proceso falla.
+
+No se debe diseñar un worker como una función manual que el desarrollador ejecuta ocasionalmente.
+
+### Variables de entorno sugeridas
+
+Cuando existan workers, deben considerarse variables como:
+
+```txt
+WORKER_EMAIL_ENABLED=true
+WORKER_EMAIL_CONCURRENCY=5
+WORKER_EMAIL_QUEUE_NAME=email-send
+WORKER_EMAIL_MAX_RETRIES=3
+WORKER_EMAIL_RETRY_DELAY_SECONDS=60
+WORKER_SHUTDOWN_TIMEOUT_SECONDS=30
+```
+
+Estas variables deben validarse con Zod junto con el resto de variables de entorno.
+
+### Criterio final
+
+Los workers deben diseñarse como componentes de producción, no como scripts auxiliares.
+
+Un worker correcto debe ser:
+
+* Persistente.
+* Independiente del API.
+* Observable.
+* Reiniciable.
+* Configurable.
+* Seguro ante errores.
+* Compatible con reintentos.
+* Idempotente.
+* Documentado.
+* Preparado para despliegue real.

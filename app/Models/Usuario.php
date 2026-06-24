@@ -47,7 +47,8 @@ class Usuario extends Authenticatable
 
     public function roles(): BelongsToMany
     {
-        return $this->belongsToMany(RolUsuario::class, 'usuarios_roles', 'usuario_id', 'rol_id');
+        return $this->belongsToMany(RolUsuario::class, 'usuarios_roles', 'usuario_id', 'rol_id')
+            ->withPivot('id', 'created_at');
     }
 
     public function inscripciones(): HasMany

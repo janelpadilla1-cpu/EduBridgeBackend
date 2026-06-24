@@ -42,7 +42,10 @@ return new class extends Migration
             $table->foreignUuid('usuario_id')->constrained('usuarios')->cascadeOnDelete();
             $table->foreignUuid('rol_id')->constrained('roles_usuario')->cascadeOnDelete();
             $table->timestampTz('created_at')->useCurrent();
-            $table->unique(['usuario_id', 'rol_id']);
+
+            $table->unique(['usuario_id', 'rol_id'], 'uq_usuarios_roles_usuario_rol');
+            $table->index('usuario_id');
+            $table->index('rol_id');
         });
     }
 

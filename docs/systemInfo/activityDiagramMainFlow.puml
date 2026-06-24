@@ -20,28 +20,18 @@ partition "Usuario universitario" {
 
 partition "Sistema de Ayudantías" {
   if (¿Cuenta local creada?) then (No)
-    :Solicitar código o correo institucional;
+    :Solicitar correo, nombre completo, rol y contraseña;
   else (Sí)
     :Solicitar credenciales;
   endif
 }
 
 if (¿Cuenta local creada?) then (No)
-  partition "Sistema universitario externo" {
-    :Validar existencia del usuario universitario;
-    :Retornar datos básicos del usuario;
-  }
-
   partition "Sistema de Ayudantías" {
-    if (¿Usuario válido?) then (Sí)
-      :Solicitar contraseña;
-      :Crear Usuario si no existe;
-      :Crear CuentaUsuario con password_hash;
-      :Asignar rol ESTUDIANTE por defecto;
-    else (No)
-      :Mostrar error de usuario no válido;
-      stop
-    endif
+    :Validar datos de registro local;
+    :Crear Usuario con datos enviados;
+    :Crear CuentaUsuario con password_hash;
+    :Asignar rol enviado en el body;
   }
 else (Sí)
   partition "Sistema de Ayudantías" {

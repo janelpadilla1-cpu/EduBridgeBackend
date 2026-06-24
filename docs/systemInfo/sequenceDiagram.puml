@@ -1,13 +1,9 @@
 @startuml
-' ============================================================
-' DIAGRAMA DE SECUENCIA - Sistema de Ayudantías Universitarias
-' ============================================================
-
 skinparam shadowing false
 skinparam sequenceMessageAlign center
 skinparam participantPadding 20
 
-title Secuencia Principal - Registro, Consulta e Inscripción a Ayudantía
+title Secuencia Principal - Registro Interno, Consulta e Inscripción
 
 actor "Usuario universitario" as Usuario
 boundary "Frontend" as Frontend
@@ -15,29 +11,21 @@ control "AuthService" as Auth
 control "AyudantiaService" as Ayudantia
 control "InscripcionService" as Inscripcion
 entity "Base de Datos" as DB
-participant "DirectorioUniversitarioGateway" as Directorio
 participant "AulaGateway" as Aula
 
-== Creación de cuenta local ==
+== Creación de cuenta local interna ==
 
-Usuario -> Frontend : Ingresa código/correo institucional
-Frontend -> Auth : crearCuenta(externalUserRef, password)
-Auth -> Directorio : validarUsuarioUniversitario(externalUserRef)
-Directorio --> Auth : usuario válido + datos básicos
+Usuario -> Frontend : Ingresa correo, nombre, rol y contraseña
+Frontend -> Auth : crearCuenta(datosRegistro)
 
-alt Usuario universitario válido
-  Auth -> DB : buscarUsuarioPorExternalRef(externalUserRef)
-  alt Usuario no existe
-    Auth -> DB : crear Usuario
-  end
-  Auth -> DB : crear CuentaUsuario(password_hash)
-  Auth -> DB : asignar rol ESTUDIANTE
-  Auth --> Frontend : cuenta creada
-  Frontend --> Usuario : Confirmación de registro
-else Usuario no válido
-  Auth --> Frontend : error de validación
-  Frontend --> Usuario : Mostrar rechazo
-end
+Auth -> DB : validar unicidad correo/external_user_ref/código
+Auth -> DB : crear Usuario
+Auth -> DB : crear CuentaUsuario(password_hash)
+Auth -> DB : buscar/crear RolUsuario(rol)
+Auth -> DB : crear UsuarioRol(usuario_id, rol_id)
+Auth -> DB : crear token Sanctum
+Auth --> Frontend : token + usuario con rol
+Frontend --> Usuario : Confirmación de registro
 
 == Consulta de ayudantías ==
 

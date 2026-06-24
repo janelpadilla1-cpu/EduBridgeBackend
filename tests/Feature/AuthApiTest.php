@@ -12,13 +12,14 @@ class AuthApiTest extends TestCase
     public function test_register_creates_local_account(): void
     {
         $response = $this->postJson('/api/v1/auth/register', [
-            'external_user_ref' => 'estudiante.demo@edu.bo',
             'correo_institucional' => 'estudiante.demo@edu.bo',
+            'nombre_completo' => 'Estudiante Demo Interno',
+            'rol' => 'ESTUDIANTE',
             'password' => 'Password123!',
             'password_confirmation' => 'Password123!',
         ]);
 
         $response->assertCreated()
-            ->assertJsonStructure(['token_type', 'access_token', 'usuario' => ['id', 'correo_institucional']]);
+            ->assertJsonStructure(['token_type', 'access_token', 'usuario' => ['id', 'correo_institucional', 'nombre_completo', 'roles']]);
     }
 }
